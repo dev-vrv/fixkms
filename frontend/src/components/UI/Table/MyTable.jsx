@@ -109,7 +109,7 @@ const MyTable = ({ fulldata, tabName, role }) => {
 			<table>
 				<thead>
 					<tr>
-						{role === 'admin' && <th>Действие</th>}
+						{role !== 'user' && <th>Действие</th>}
 						{Object.keys(fulldata[0]).map((cell) => (
 							<th key={cell}>{cell.replace(/_/g, " ")}</th>
 						))}
@@ -118,7 +118,7 @@ const MyTable = ({ fulldata, tabName, role }) => {
 				<tbody>
 					{fulldata.map((row, rowIndex) => (
 						<tr key={rowIndex}>
-							{role === 'admin' && (
+							{role !== 'user' && (
 								<td>
 									<MyButton
 										text="Изменить"

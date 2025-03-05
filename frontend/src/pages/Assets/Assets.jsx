@@ -27,7 +27,7 @@ const Assets = () => {
   }, []);
 
   const exportData = () => {
-    const name = tab; 
+    const name = tab;
     fetchExportData('assets/import', { name: name });
   };
 
@@ -75,19 +75,23 @@ const Assets = () => {
             style={{ width: "fit-content" }}
             disabled={role === "user"}
           />
-          <Button
-            text="Импортировать CSV"
-            onClick={() => {
-              console.log("click");
-            }}
-            style={{ width: "fit-content" }}
-            disabled={role === "user"}
-          />
-          <Button
-            text="Экспортировать CSV"
-            onClick={exportData}
-            style={{ width: "fit-content" }}
-          />
+          {tab !== 'users' && (
+            <>
+              <Button
+                text="Импортировать CSV"
+                onClick={() => {
+                  console.log("click");
+                }}
+                style={{ width: "fit-content" }}
+                disabled={role === "user"}
+              />
+              <Button
+                text="Экспортировать CSV"
+                onClick={exportData}
+                style={{ width: "fit-content" }}
+              />
+            </>
+          )}
         </div>
       </div>
 
