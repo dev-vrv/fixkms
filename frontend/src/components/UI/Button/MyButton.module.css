@@ -1,0 +1,21 @@
+.button {
+	min-height: 2.75rem;
+	min-width: 2.75rem;
+	border-radius: 0.75rem;
+	font-size: 0.9rem;
+	padding: 0.5rem;
+	border: 2px black solid;
+	width: 100%;
+}
+
+.active {
+	color: white;
+	background: black;
+}
+
+.button.disabled {
+	background-color: #ccc;
+	border: 1px solid #797979;
+	color: #797979;
+	pointer-events: none;
+}
