@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./MyTable.css";
 import MyButton from "../Button/MyButton";
 import { translateAssets } from "../../../utils/assets";
 import { fetchData, fetchForm } from "../../../utils/fetchData";
+
+
+const SearchComponent = ({ search, setSearch }) => {
+	return (
+		<input
+			type="text"
+			placeholder="Поиск"
+			value={search}
+			onChange={(e) => setSearch(e.target.value)}
+			className="form-control"
+		/>
+	);
+};
 
 const MyTable = ({ fulldata, tabName, role }) => {
 	const [editingRow, setEditingRow] = useState(null);
 	const [formData, setFormData] = useState({});
 	const [alertMessage, setAlertMessage] = useState(null);
 	const [alertStatus, setAlertStatus] = useState("");
+	const [search, setSearch] = useState("");
+	const [viewData, setViewData] = useState([]);
 
+	useEffect(() => {
+		setViewData(fulldata);
+	}, [fulldata, setViewData]);
 
 	if (!fulldata || fulldata.length === 0) return <p>Нет данных</p>;
 
@@ -17,30 +35,37 @@ const MyTable = ({ fulldata, tabName, role }) => {
 		components: {
 			delete: `assets/components/${formData.id}`,
 			update: `assets/components/${formData.id}`,
+			get: 'assets/components/',
 		},
 		consumables: {
 			delete: `assets/consumables/${formData.id}`,
 			update: `assets/consumables/${formData.id}`,
+			get: 'assets/consumables/',
 		},
 		equipments: {
 			delete: `assets/equipments/${formData.id}`,
 			update: `assets/equipments/${formData.id}`,
+			get: 'assets/equipments/',
 		},
 		movements: {
 			delete: `assets/movements/${formData.id}`,
 			update: `assets/movements/${formData.id}`,
+			get: 'assets/movements/',
 		},
 		programs: {
 			delete: `assets/programs/${formData.id}`,
 			update: `assets/programs/${formData.id}`,
+			get: 'assets/programs/',
 		},
 		repairs: {
 			delete: `assets/repairs/${formData.id}`,
 			update: `assets/repairs/${formData.id}`,
+			get: 'assets/repairs/',
 		},
 		users: {
 			delete: `auth/users/${formData.id}`,
 			update: `auth/users/${formData.id}`,
+			get: 'auth/users/',
 		},
 	}
 
@@ -104,8 +129,28 @@ const MyTable = ({ fulldata, tabName, role }) => {
 		}
 	};
 
+	const handleSearch = () => {
+		fetchForm(`assets/${tabName}/${search}`, "get", null).then((response) => {
+			if (response && response.status === 200) {
+				setViewData([response.data]);
+			}
+			else {
+				alert("Ничего не найдено");
+			}
+		});
+	};
+
 	return (
 		<div className="table-container">
+			<div className="d-flex gap-2 py-2">
+				<SearchComponent search={search} setSearch={setSearch} />
+				<MyButton text="Поиск" onClick={() => handleSearch()} style={{ width: 'fit-content' }} />
+				<MyButton text="Сброс" onClick={() => {
+					setSearch("");
+					setViewData(fulldata);
+				}} style={{ width: 'fit-content' }} />
+			</div>
+
 			<table>
 				<thead>
 					<tr>
@@ -116,7 +161,7 @@ const MyTable = ({ fulldata, tabName, role }) => {
 					</tr>
 				</thead>
 				<tbody>
-					{fulldata.map((row, rowIndex) => (
+					{viewData.map((row, rowIndex) => (
 						<tr key={rowIndex}>
 							{role !== 'user' && (
 								<td>
