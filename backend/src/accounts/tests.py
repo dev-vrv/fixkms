@@ -38,6 +38,7 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
 
+
 class CurrentUserTests(APITestCase):
 
     def setUp(self):
