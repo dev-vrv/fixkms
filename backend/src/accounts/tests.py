@@ -75,7 +75,8 @@ class UserListTests(APITestCase):
         # Создаём пользователя и получаем его токен
         self.user = get_user_model().objects.create_user(
             username='testuser',
-            password='testpassword'
+            password='testpassword',
+            Роль='admin'
         )
         self.login_url = reverse('token_obtain_pair')
         self.user_list_url = reverse('user-list')

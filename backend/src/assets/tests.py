@@ -133,7 +133,8 @@ class EquipmentsTests(APITestCase):
         # Создаём пользователя с правами администратора
         self.user = get_user_model().objects.create_user(
             username='testuser',
-            password='testpassword'
+            password='testpassword',
+            Роль='admin'
         )
         self.user.is_staff = True  # Назначаем пользователя администратором
         self.user.is_superuser = True  # Если нужно, можно назначить суперпользователем
@@ -159,9 +160,4 @@ class EquipmentsTests(APITestCase):
         }
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
         response = self.client.post(self.equipment_url, data, format='json')
-
-        # Печать ответа для диагностики
-        print(f"Response status code: {response.status_code}")
-        print(f"Response data: {response.data}")
-        
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
