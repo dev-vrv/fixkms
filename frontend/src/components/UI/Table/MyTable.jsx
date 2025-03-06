@@ -120,7 +120,7 @@ const MyTable = ({ fulldata, tabName, role }) => {
 			get: 'auth/user',
 		},
 	}
-
+	
 	const data = Object.keys(fulldata[0]).filter((key) => key !== "id" && key !== "date_joined");
 	const handleEditClick = (row) => {
 		setEditingRow(row);
