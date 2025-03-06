@@ -36,7 +36,7 @@ import os
 
 
 model_mapping = {
-    "Equipments": Equipments,
+    "equipments": Equipments,
     "movements": Movements,
     "repairs": Repairs,
     "components": Components,
@@ -329,10 +329,9 @@ class AssetsListView(APIView):
 # utils for convert and download .csv
 def export_assets_to_csv(file_path, model_name):
     model = model_mapping.get(model_name.lower())
-
     if model:
         data = model.objects.all()
-
+            
         if not data.exists():
             return f"В '{model_name}' нет данных."
 
