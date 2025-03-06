@@ -87,7 +87,7 @@ const UserForm = ({ onClose }) => {
 
                 {fields.map((name) => (
                     <div key={name} className="d-flex flex-column gap-1">
-                        <label className="p-1 text-capitalize">{name.replace(/_/g, " ")}</label>
+                        <label className="p-1 text-capitalize">{name === 'username' ?  'Логин' : name === 'password' ? 'Пароль' : name.replace(/_/g, " ")}</label>
                         {name === "Роль" ? (
                             <select name={name} value={formData[name]} onChange={handleChange} className="form-control">
                                 <option value="admin">Администратор</option>

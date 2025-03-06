@@ -283,7 +283,6 @@ class AssetsListView(APIView):
                 categories["consumables"], many=True
             ).data,
             "repairs": RepairsSerializer(categories["repairs"], many=True).data,
-            "movements": MovementsSerializer(categories["movements"], many=True).data,
         }
 
         custom_assets_detail = (
@@ -409,6 +408,7 @@ def import_csv_to_db(file_path, model_name):
     model = model_mapping.get(model_name.lower())
 
     if model:
+        
         try:
             model.objects.all().delete()
 
@@ -561,7 +561,7 @@ class ExportDBView(APIView):
             )
 
         self.model_name = model_name
-
+        
         return self.perform_create(file, model_name)
 
     def perform_create(self, file, model_name):

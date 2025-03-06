@@ -17,6 +17,23 @@ const SearchComponent = ({ search, setSearch }) => {
 	);
 };
 
+const checkDateExpired = (date) => {
+	const currentDate = new Date();
+	const licenseEndDate = new Date(date);
+
+	// Сравниваем даты по времени
+	const timeDifference = licenseEndDate - currentDate;
+	const daysRemaining = timeDifference / (1000 * 3600 * 24); // переводим миллисекунды в дни
+
+	if (daysRemaining < 0) {
+		return 'danger'; // если дата истекла
+	} else if (daysRemaining < 30) {
+		return 'warning'; // если осталось меньше 30 дней
+	} else {
+		return 'success'; // если все в порядке
+	}
+};
+
 const MyTable = ({ fulldata, tabName, role }) => {
 	const [editingRow, setEditingRow] = useState(null);
 	const [formData, setFormData] = useState({});
@@ -24,10 +41,45 @@ const MyTable = ({ fulldata, tabName, role }) => {
 	const [alertStatus, setAlertStatus] = useState("");
 	const [search, setSearch] = useState("");
 	const [viewData, setViewData] = useState([]);
+	const [licenseStatus, setLicenseStatus] = useState(null);
+	const [warningDate, setWarningDate] = useState(null);
+	const [dangerDate, setDangerDate] = useState(null);
 
 	useEffect(() => {
 		setViewData(fulldata);
 	}, [fulldata, setViewData]);
+
+	useEffect(() => {
+		const expired = {};
+		let hasDanger = false;
+		let hasWarning = false;
+		fulldata.forEach((row) => {
+			const date = row['Лиценизя_До'];
+			if (date) {
+				const status = checkDateExpired(date);
+				const id = row['id'];
+				expired[id] = status;
+
+				if (status === 'danger') {
+					hasDanger = true;
+				}
+				if (status === 'warning') {
+					hasWarning = true;
+				}
+			}
+		});
+		setLicenseStatus(expired);
+
+		if (Object.keys(expired).length > 0) {
+			if (hasDanger) {
+				setDangerDate("❌ Внимание! У вас есть устройства с истекшими лицензиями.");
+			}
+			if (hasWarning) {
+				setWarningDate("⚠️ Внимание! У вас есть устройства с лицензиями, которые истекут в течение 30 дней.");
+			}
+		}
+ 
+	}, [fulldata, setLicenseStatus, setWarningDate, setDangerDate]);
 
 	if (!fulldata || fulldata.length === 0) return <p>Нет данных</p>;
 
@@ -35,37 +87,37 @@ const MyTable = ({ fulldata, tabName, role }) => {
 		components: {
 			delete: `assets/components/${formData.id}`,
 			update: `assets/components/${formData.id}`,
-			get: 'assets/components/',
+			get: 'assets/components',
 		},
 		consumables: {
 			delete: `assets/consumables/${formData.id}`,
 			update: `assets/consumables/${formData.id}`,
-			get: 'assets/consumables/',
+			get: 'assets/consumables',
 		},
 		equipments: {
 			delete: `assets/equipments/${formData.id}`,
 			update: `assets/equipments/${formData.id}`,
-			get: 'assets/equipments/',
+			get: 'assets/equipments',
 		},
 		movements: {
 			delete: `assets/movements/${formData.id}`,
 			update: `assets/movements/${formData.id}`,
-			get: 'assets/movements/',
+			get: 'assets/movements',
 		},
 		programs: {
 			delete: `assets/programs/${formData.id}`,
 			update: `assets/programs/${formData.id}`,
-			get: 'assets/programs/',
+			get: 'assets/programs',
 		},
 		repairs: {
 			delete: `assets/repairs/${formData.id}`,
 			update: `assets/repairs/${formData.id}`,
-			get: 'assets/repairs/',
+			get: 'assets/repairs',
 		},
 		users: {
 			delete: `auth/users/${formData.id}`,
 			update: `auth/users/${formData.id}`,
-			get: 'auth/users/',
+			get: 'auth/user',
 		},
 	}
 
@@ -130,7 +182,7 @@ const MyTable = ({ fulldata, tabName, role }) => {
 	};
 
 	const handleSearch = () => {
-		fetchForm(`assets/${tabName}/${search}`, "get", null).then((response) => {
+		fetchForm(`${urls[tabName].get}/${search}`, "get", null).then((response) => {
 			if (response && response.status === 200) {
 				setViewData([response.data]);
 			}
@@ -142,6 +194,12 @@ const MyTable = ({ fulldata, tabName, role }) => {
 
 	return (
 		<div className="table-container">
+
+			<div className="">
+				{tabName === 'programs' && warningDate && <div className="alertBox warning">{warningDate}</div>}
+				{tabName === 'programs' && dangerDate && <div className="alertBox error">{dangerDate}</div>}
+			</div>
+
 			<div className="d-flex gap-2 py-2">
 				<SearchComponent search={search} setSearch={setSearch} />
 				<MyButton text="Поиск" onClick={() => handleSearch()} style={{ width: 'fit-content' }} />
@@ -156,13 +214,13 @@ const MyTable = ({ fulldata, tabName, role }) => {
 					<tr>
 						{role !== 'user' && <th>Действие</th>}
 						{Object.keys(fulldata[0]).map((cell) => (
-							<th key={cell}>{cell.replace(/_/g, " ")}</th>
+							<th key={cell}>{cell === 'username' ? 'Логин' : cell === 'date_joined' ? 'Дата регистрации' : cell.replace(/_/g, " ")}</th>
 						))}
 					</tr>
 				</thead>
 				<tbody>
 					{viewData.map((row, rowIndex) => (
-						<tr key={rowIndex}>
+						<tr key={rowIndex} className={licenseStatus && licenseStatus[row.id] ? `table-${licenseStatus[row.id]}` : ''}>
 							{role !== 'user' && (
 								<td>
 									<MyButton

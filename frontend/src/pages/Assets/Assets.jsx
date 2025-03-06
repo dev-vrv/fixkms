@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchData, fetchExportData } from "../../utils/fetchData";
+import { fetchData, fetchExportData, fetchImportData } from "../../utils/fetchData";
 import Button from "../../components/UI/Button/MyButton";
 import Loader from "../../components/UI/Loader/Loader";
 import classes from "../Page.module.css";
@@ -14,12 +14,15 @@ import RepairsForm from "../../components/UI/Forms/RepairsForm";
 import MovementsForm from "../../components/UI/Forms/MovementsForm";
 import UserForm from "../../components/UI/Forms/UserForm";
 
-
 const Assets = () => {
   const tab = window.location.pathname.split("/assets/")[1]; // Делаем это для извлечения текущей страницы
   const [data, setData] = useState(null);
   const [formVisible, setFormVisible] = useState(false);
+  const [importFormVisible, setImportFormVisible] = useState(false);
   const [role, setRole] = useState(null);
+  const [file, setFile] = useState(null);
+  const [importAlert, setImportAlert] = useState(null);
+  const [importAlertType, setImportAlertType] = useState(null);
 
   useEffect(() => {
     fetchData("assets", "get", null, setData);
@@ -27,8 +30,7 @@ const Assets = () => {
   }, []);
 
   const exportData = () => {
-    const name = tab;
-    fetchExportData('assets/import', { name: name });
+    fetchExportData("assets/import", { name: tab });
   };
 
   // Логика для отображения нужной формы
@@ -49,7 +51,7 @@ const Assets = () => {
       case "users":
         return <UserForm onClose={toggleFormVisibility} />;
       default:
-        return null; // Если нет соответствующей страницы, не показываем форму
+        return null;
     }
   };
 
@@ -57,8 +59,46 @@ const Assets = () => {
     setFormVisible((prev) => !prev);
   };
 
+  const toggleImportFormVisibility = () => {
+    setImportFormVisible((prev) => !prev);
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleImportSubmit = async (e) => {
+    e.preventDefault();
+    if (!file) {
+      setImportAlert("Файл не выбран!");
+      setImportAlertType("error");
+      return;
+    }
+    await fetchImportData(
+      "assets/export",
+      file,
+      tab,
+      (error) => {
+        setImportAlert(error);
+        setImportAlertType("error");
+      },
+      (success) => {
+        setImportAlert(success);
+        setImportAlertType("success");
+        fetchData("assets", "get", null, setData);
+        setTimeout(() => {
+          toggleImportFormVisibility(false);
+          setImportAlert(null);
+          setImportAlertType(null);
+        },
+        2000);
+      }
+    );
+  };
+
+
   return (
-    <div className={classes.main + ' main'}>
+    <div className={classes.main + " main"}>
       <div className="p-3 border-bottom d-flex justify-content-between gap-3">
         <div className="d-flex gap-3">
           <Button
@@ -75,13 +115,11 @@ const Assets = () => {
             style={{ width: "fit-content" }}
             disabled={role === "user"}
           />
-          {tab !== 'users' && (
+          {tab !== "users" && (
             <>
               <Button
                 text="Импортировать CSV"
-                onClick={() => {
-                  console.log("click");
-                }}
+                onClick={toggleImportFormVisibility}
                 style={{ width: "fit-content" }}
                 disabled={role === "user"}
               />
@@ -108,6 +146,32 @@ const Assets = () => {
       <div className="p-3">
         {formVisible && <div className="p-3 border rounded form-container">{getFormComponent()}</div>}
       </div>
+
+      {/* Форма импорта CSV */}
+      {importFormVisible && (
+        <div className="p-3 border rounded form-container">
+          <h3>Импортировать CSV для {tab}</h3>
+          {importAlert && <div className={`alertBox ${importAlertType}`}>
+            {importAlert}
+            <button type="button" className="p-1" onClick={() => {
+              setImportAlert(null);
+              setImportAlertType(null);
+            }}>X</button>
+          </div>}
+          <form onSubmit={handleImportSubmit} className="d-flex flex-column gap-3">
+            <label>Выберите файл</label>
+            <input type="file" accept=".csv" onChange={handleFileChange} className="form-control" />
+            <div className="d-flex gap-2">
+              <Button text="Отправить" type="submit" style={{ width: "fit-content" }} />
+              <Button text="Отмена" type="button" style={{ width: "fit-content" }} onClick={() => {
+                toggleImportFormVisibility(false);
+                setImportAlert(null);
+                setImportAlertType(null);
+              }} />
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

@@ -155,7 +155,7 @@ class Consumables(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetTMPN):
     )
 
     def __str__(self):
-        return self.Количество if self.Количество else 'Количество не указано'
+        return 'Серийный номер не указан' if not self.Серийный_Номер_Связанного_Объекта else self.Серийный_Номер_Связанного_Объекта
 
 
 class Repairs(BaseAssetA, BaseAssetWrranty, BaseAssetTMPN):

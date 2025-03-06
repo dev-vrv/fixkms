@@ -1,5 +1,9 @@
 from django.test import TestCase
 from .models import Equipments, Programs, Components, Movements, Repairs
+from rest_framework.test import APITestCase
+from rest_framework import status
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 
 class EquipmentsModelTest(TestCase):
@@ -91,3 +95,73 @@ class MovementsModelTest(TestCase):
         """Тестируем метод __str__"""
         movement = self.movement
         self.assertEqual(str(movement), "Test Movement")
+        
+        
+class AssetsListTests(APITestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpassword'
+        )
+        self.login_url = reverse('token_obtain_pair')
+        self.assets_url = reverse('assets-list')
+
+        # Получаем токен для авторизации
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword'
+        }
+        login_response = self.client.post(self.login_url, data, format='json')
+        self.access_token = login_response.data['access']
+
+    def test_assets_list_authenticated(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+        response = self.client.get(self.assets_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Проверка на наличие данных в ответе
+        self.assertGreater(len(response.data), 0)
+
+    def test_assets_list_unauthenticated(self):
+        response = self.client.get(self.assets_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class EquipmentsTests(APITestCase):
+
+    def setUp(self):
+        # Создаём пользователя с правами администратора
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpassword'
+        )
+        self.user.is_staff = True  # Назначаем пользователя администратором
+        self.user.is_superuser = True  # Если нужно, можно назначить суперпользователем
+        self.user.save()
+
+        self.login_url = reverse('token_obtain_pair')
+        self.equipment_url = reverse('equipment-list')
+
+        # Получаем токен для авторизации
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+        }
+        login_response = self.client.post(self.login_url, data, format='json')
+        self.access_token = login_response.data['access']
+
+    def test_create_equipment(self):
+        data = {
+            'Сотрудник': 'John Doe',
+            'name': 'New Equipment',
+            'model': 'Model 1',
+            'serial_number': '123456'
+        }
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+        response = self.client.post(self.equipment_url, data, format='json')
+
+        # Печать ответа для диагностики
+        print(f"Response status code: {response.status_code}")
+        print(f"Response data: {response.data}")
+        
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

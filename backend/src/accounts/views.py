@@ -7,6 +7,22 @@ from django.contrib.auth import get_user_model
 from .serializers import UserCreateSerializer, UserSerializer, UserUpdateSerializer
 
 
+class UserRetrieveView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            user = get_user_model().objects.get(id=pk)
+        except get_user_model().DoesNotExist:
+            raise NotFound("Пользователь не найден.")
+
+        if request.user.Роль == "user" and request.user.id != user.id:
+            raise PermissionDenied("Вы не можете просматривать чужой профиль.")
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UserListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -81,3 +97,18 @@ class UserUpdateView(APIView):
                 status=status.HTTP_200_OK,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            user = get_user_model().objects.get(id=pk)
+        except get_user_model().DoesNotExist:
+            raise NotFound("Пользователь не найден.")
+
+        if request.user.Роль == "user":
+            raise PermissionDenied("Вы не можете удалять пользователей.")
+
+        user.delete()
+        return Response(
+            {"status": "success", "message": "Пользователь удален"},
+            status=status.HTTP_204_NO_CONTENT,
+        )

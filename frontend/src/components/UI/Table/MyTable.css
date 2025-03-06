@@ -19,3 +19,11 @@ td {
 th {
   background-color: #f4f4f4;
 }
+
+.table-warning {
+  background-color: #f2e5c3;
+}
+
+.table-danger {
+  background-color: #f2c3c3;
+}
