@@ -214,7 +214,7 @@ const MyTable = ({ fulldata, tabName, role }) => {
 					<tr>
 						{role !== 'user' && <th>Действие</th>}
 						{Object.keys(fulldata[0]).map((cell) => (
-							<th key={cell}>{cell === 'username' ? 'Логин' : cell === 'date_joined' ? 'Дата регистрации' : cell.replace(/_/g, " ")}</th>
+							<th key={cell}>{cell === 'username' ? 'Логин' : cell === 'date_joined' ? 'Дата регистрации' : cell === 'email' ? 'Почта' : cell.replace(/_/g, " ")}</th>
 						))}
 					</tr>
 				</thead>

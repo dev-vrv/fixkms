@@ -6,12 +6,12 @@ import "./Form.css";
 const UserForm = ({ onClose }) => {
     const [formData, setFormData] = useState({
         username: "",
-        password: "",
-        Роль: "user",
         email: "",
-        Имя: "",
+        password: "",
         Фамилия: "",
+        Имя: "",
         Отчество: "",
+        Роль: "user",
         Организация: "",
         Подразделение: "",
         Телефон: "",
@@ -66,7 +66,7 @@ const UserForm = ({ onClose }) => {
         setAlertMessage(null);
     };
 
-    const fields = ["username", "password", "Роль", "Имя", "Фамилия", "Отчество", "Организация", "Подразделение", "Телефон", 'email'];
+    const fields = ["username",  'email', "password", "Фамилия", "Имя",  "Отчество", "Роль",  "Организация", "Подразделение", "Телефон"];
 
     return (
         <div className={'formContainer p-3'}>
@@ -87,7 +87,7 @@ const UserForm = ({ onClose }) => {
 
                 {fields.map((name) => (
                     <div key={name} className="d-flex flex-column gap-1">
-                        <label className="p-1 text-capitalize">{name === 'username' ?  'Логин' : name === 'password' ? 'Пароль' : name.replace(/_/g, " ")}</label>
+                        <label className="p-1 text-capitalize">{name === 'username' ?  'Логин' : name === 'password' ? 'Пароль' : name === 'email'? 'Почта' : name.replace(/_/g, " ")}</label>
                         {name === "Роль" ? (
                             <select name={name} value={formData[name]} onChange={handleChange} className="form-control">
                                 <option value="admin">Администратор</option>
