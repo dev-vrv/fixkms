@@ -76,37 +76,50 @@ const AssetsActions = ({ role, tab, data, setData }) => {
 
   const ActionsButtons = () => {
     return (
-      <div className="d-flex gap-3">
+      <div className="d-flex gap-3 align-items-center" style={{ width: "100%", justifyContent: "space-between" }}>
+        <div className="d-flex gap-3">
+          <MyButton
+            text="Обновить данные"
+            onClick={() => {
+              fetchData("assets", "get", null, setData);
+              alert("Данные обновлены!");
+            }}
+            style={{ width: "fit-content" }}
+          />
+          <MyButton
+            text="Добавить новую запись"
+            onClick={toggleFormVisibility}
+            style={{ width: "fit-content" }}
+            disabled={role === "user"}
+          />
+          {tab !== "users" && (
+            <>
+              <MyButton
+                text="Импортировать CSV"
+                onClick={toggleImportFormVisibility}
+                style={{ width: "fit-content" }}
+                disabled={role === "user"}
+              />
+              <MyButton
+                text="Экспортировать CSV"
+                onClick={exportData}
+                style={{ width: "fit-content" }}
+              />
+            </>
+          )}
+        </div>
+
         <MyButton
-          text="Обновить данные"
+          text={"Выйти"}
           onClick={() => {
-            fetchData("assets", "get", null, setData);
-            alert("Данные обновлены!");
+            localStorage.removeItem("user");
+            window.location.reload();
           }}
           style={{ width: "fit-content" }}
+          className="btn-danger"
         />
-        <MyButton
-          text="Добавить новую запись"
-          onClick={toggleFormVisibility}
-          style={{ width: "fit-content" }}
-          disabled={role === "user"}
-        />
-        {tab !== "users" && (
-          <>
-            <MyButton
-              text="Импортировать CSV"
-              onClick={toggleImportFormVisibility}
-              style={{ width: "fit-content" }}
-              disabled={role === "user"}
-            />
-            <MyButton
-              text="Экспортировать CSV"
-              onClick={exportData}
-              style={{ width: "fit-content" }}
-            />
-          </>
-        )}
       </div>
+
     )
   };
 

@@ -4,13 +4,13 @@ import MyTable from "../Table/MyTable";
 import AssetFormGenerator from "../Forms/AssetFormGenerator";
 
 const tabsNamesMap = {
-    "Расходники": "consumables",
-    "Комплектующие": "components",
+    "Оборудование": "equipments",
     "Программы": "programs",
-    "Оборудование": "equipments"
+    "Комплектующие": "components",
+    "Расходники": "consumables",
 }
 
-const tabs = ["Расходники", "Комплектующие", "Программы", "Оборудование"];
+const tabs = Object.keys(tabsNamesMap);
 
 const HandbooksTabs = ({ data, sync, role }) => {
     const [activeTab, setActiveTab] = useState("Расходники");
@@ -60,7 +60,7 @@ const HandbooksTabs = ({ data, sync, role }) => {
                     }}/>
                 </div>
 
-                {!tabData.length ? <p>Нет данных</p> : <MyTable fullData={tabData} tab={tabsNamesMap[activeTab]} isHandbook={true} role={role}  />}
+                {!tabData.length ? <p className="p-3">Нет данных</p> : <MyTable fullData={tabData} tab={tabsNamesMap[activeTab]} isHandbook={true} role={role}  />}
             </div>
         </div>
     );

@@ -1,12 +1,17 @@
 from datetime import timedelta
 import os
 from pathlib import Path
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '../.env'))
+
 
 SECRET_KEY = "django-insecure-vjs$rbbyu+ks9%52_cxwu2yn&aoo3!@hjmh-))+dlqsgh93o1j"
 DEBUG = True
 ALLOWED_HOSTS = [
+    "*",
     "localhost",
     "127.0.0.1",
     "http://localhost:3000",
@@ -85,8 +90,12 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres_fxkms",
+        "USER": "postgres_fxkms",
+        "PASSWORD": "postgres_fxkms",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 

@@ -314,6 +314,7 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
             };
         });
     };
+
     const handleSelectChange = (name, event) => {
         const value = event.target.value;
         setFormData((prev) => ({
@@ -369,9 +370,17 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
                 </div>
             )}
             <form onSubmit={(e) => e.preventDefault()} className="formObject" action={endPoint}>
-                <div className="d-flex gap-2 w-100">
+                <div className="d-flex gap-2 w-100 justify-content-between">
+                    <div className="d-flex gap-2">
                     <MyButton text={continueButtonText} onClick={handleSubmit} style={{ width: "fit-content" }} />
                     <MyButton text="Отмена" onClick={onClose} style={{ width: "fit-content" }} />
+                    </div>
+                    {data && (
+                        <MyButton text="Удалить" onClick={() => {
+                            fetchForm(`${endPoint}`, "delete");
+                            window.location.reload();
+                        }} style={{ width: "fit-content" }} className="table-danger" />
+                    )}
                 </div>
                 {formFields.map((name) => (
                     <div key={name} className="d-flex flex-column gap-1">

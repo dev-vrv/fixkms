@@ -56,6 +56,7 @@ body, html, #root {
 	padding: 3rem;
 }
 
+
 .py-1 {
 	padding-top: 0.25rem;
 	padding-bottom: 0.25rem;
@@ -186,6 +187,7 @@ button:hover {
 	color: #191919 !important;
 	border: 2px solid #bfbfbf !important;
 	transition: all 0.1s ease-in-out;
+	opacity: 1 !important;
 }
 
 .btn-primary {

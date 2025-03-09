@@ -33,3 +33,9 @@ th {
 .table-danger {
   background-color: #f2c3c3;
 }
+
+.btn-danger {
+  background-color: #f2c3c3;
+  border-color: #f2c3c3;
+  color: dark;
+}

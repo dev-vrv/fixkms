@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/static/css/main.c3365deb.css",
+    "main.js": "/static/js/main.7e07f875.js",
+    "index.html": "/index.html",
+    "main.c3365deb.css.map": "/static/css/main.c3365deb.css.map",
+    "main.7e07f875.js.map": "/static/js/main.7e07f875.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c3365deb.css",
+    "static/js/main.7e07f875.js"
+  ]
+}

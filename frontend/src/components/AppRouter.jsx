@@ -9,7 +9,6 @@ import { fetchData } from "../utils/fetchData";
 import NavAssets from "./NavAssets/NavAssets";
 import Assets from "../pages/Assets/Assets";
 import Loader from "./UI/Loader/Loader";
-
 import classes from "../pages/Page.module.css";
 
 const AssetWrapper = ({ keys }) => {
@@ -31,7 +30,7 @@ const AppRouter = () => {
 		}
 
 		fetchData("assets", "get", null, setData);
-	}, []);
+	}, [access, refresh]);
 
 	const keys = data ? Object.keys(data) : [];
 

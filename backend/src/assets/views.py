@@ -42,6 +42,10 @@ from accounts.serializers import UserSerializer
 from accounts.models import User
 import csv
 import os
+from faker import Faker
+from django.http import JsonResponse
+
+faker = Faker('ru_RU')
 
 
 model_mapping = {
@@ -71,7 +75,7 @@ handbook_serializer_mapping = {
 # base view
 class BaseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -88,7 +92,8 @@ class BaseViewSet(viewsets.ModelViewSet):
 
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         message = (
@@ -242,84 +247,37 @@ class CustomAssetDetailsViewSet(BaseViewSet):
 
 # all assets
 class AssetsListView(APIView):
+    def get_queryset(self, model, user):
+        """Возвращает QuerySet в зависимости от роли пользователя."""
+        if user.Роль == "admin":
+            return model.objects.all()
+        elif user.Роль == "manager":
+            return model.objects.filter(Сотрудник_Компания=user.Организация)
+        else:
+            return model.objects.filter(Сотрудник_Логин=user.username)
+
     def get(self, request):
-        user = self.request.user
+        user = request.user
 
-        categories = {
-            "equipments": (
-                Equipments.objects.filter(Сотрудник_Логин=user.username)
-                if user.Роль != "admin" and user.Роль != "manager"
-                else (
-                    Equipments.objects.filter(Сотрудник_Компания=user.Организация)
-                    if user.Роль == "manager"
-                    else Equipments.objects.all()
-                )
-            ),
-            "programs": (
-                Programs.objects.filter(Сотрудник_Логин=user.username)
-                if user.Роль != "admin" and user.Роль != "manager"
-                else (
-                    Programs.objects.filter(Сотрудник_Компания=user.Организация)
-                    if user.Роль == "manager"
-                    else Programs.objects.all()
-                )
-            ),
-            "components": (
-                Components.objects.filter(Сотрудник_Логин=user.username)
-                if user.Роль != "admin" and user.Роль != "manager"
-                else (
-                    Components.objects.filter(Сотрудник_Компания=user.Организация)
-                    if user.Роль == "manager"
-                    else Components.objects.all()
-                )
-            ),
-            "consumables": (
-                Consumables.objects.filter(Сотрудник_Логин=user.username)
-                if user.Роль != "admin" and user.Роль != "manager"
-                else (
-                    Consumables.objects.filter(Сотрудник_Компания=user.Организация)
-                    if user.Роль == "manager"
-                    else Consumables.objects.all()
-                )
-            ),
-            "repairs": (
-                Repairs.objects.filter(Сотрудник_Логин=user.username)
-                if user.Роль != "admin" and user.Роль != "manager"
-                else (
-                    Repairs.objects.filter(Сотрудник_Компания=user.Организация)
-                    if user.Роль == "manager"
-                    else Repairs.objects.all()
-                )
-            ),
-            "movements": Movements.objects.all(),
+        # Определяем список моделей и их сериализаторы
+        asset_models = {
+            "equipments": (Equipments, EquipmentsSerializer),
+            "programs": (Programs, ProgramsSerializer),
+            "components": (Components, ComponentsSerializer),
+            "consumables": (Consumables, ConsumablesSerializer),
+            "repairs": (Repairs, RepairsSerializer),
         }
 
-        data = {
-            "equipments": EquipmentsSerializer(
-                categories["equipments"], many=True
-            ).data,
-            "programs": ProgramsSerializer(categories["programs"], many=True).data,
-            "components": ComponentsSerializer(
-                categories["components"], many=True
-            ).data,
-            "consumables": ConsumablesSerializer(
-                categories["consumables"], many=True
-            ).data,
-            "repairs": RepairsSerializer(categories["repairs"], many=True).data,
-        }
+        # Формируем данные по активам
+        data = {}
+        for key, (model, serializer) in asset_models.items():
+            queryset = self.get_queryset(model, user)
+            data[key] = serializer(queryset, many=True).data
 
-        custom_assets_detail = (
-            CustomAssetDetails.objects.filter(Сотрудник_Логин=user.username)
-            if user.Роль != "admin" and user.Роль != "manager"
-            else (
-                CustomAssetDetails.objects.filter(Сотрудник_Компания=user.Организация)
-                if user.Роль == "manager"
-                else CustomAssetDetails.objects.all()
-            )
-        )
-
+        # Обрабатываем кастомные активы
+        custom_assets_detail = self.get_queryset(CustomAssetDetails, user)
         custom_assets = CustomAsset.objects.filter(
-            id__in=custom_assets_detail.values("Актив")
+            id__in=custom_assets_detail.values_list("Актив", flat=True)
         )
 
         custom_assets_data = CustomAssetSerializer(custom_assets, many=True).data
@@ -327,40 +285,43 @@ class AssetsListView(APIView):
             custom_assets_detail, many=True
         ).data
 
+        # Убираем пустые строки в None
         for category in data.values():
             for item in category:
                 for key, value in item.items():
                     if isinstance(value, str) and value == "":
                         item[key] = None
 
+        # Добавляем кастомные активы
         for asset_data in custom_assets_data:
             asset_name = asset_data.get("Название")
             data[asset_name] = custom_assets_detail_data
-            
+
+        # Добавляем данные пользователя
         data['user'] = {
             'username': user.username,
             'role': user.Роль,
             'company': user.Организация
         }
-        
+
+        # Добавляем справочники и пользователей для администратора
         if user.Роль == "admin":
             data['users'] = UserSerializer(User.objects.all(), many=True).data
             data['handbooks'] = {
-                "components": HandbookComponentsSerializer(HandbookComponents.objects.all(), many=True).data,
-                "consumables": HandbookConsumablesSerializer(HandbookConsumables.objects.all(), many=True).data,
                 "equipments": HandbookEquipmentsSerializer(HandbookEquipments.objects.all(), many=True).data,
                 "programs": HandbookProgramsSerializer(HandbookPrograms.objects.all(), many=True).data,
-            }        
+                "components": HandbookComponentsSerializer(HandbookComponents.objects.all(), many=True).data,
+                "consumables": HandbookConsumablesSerializer(HandbookConsumables.objects.all(), many=True).data,
+            }
 
         return Response(data, status=status.HTTP_200_OK)
-
-
+    
 # utils for convert and download .csv
 def export_assets_to_csv(file_path, model_name):
     model = model_mapping.get(model_name.lower())
     if model:
         data = model.objects.all()
-            
+
         if not data.exists():
             return f"В '{model_name}' нет данных."
 
@@ -370,7 +331,8 @@ def export_assets_to_csv(file_path, model_name):
             writer.writerow(field_names)
 
             for item in data:
-                writer.writerow([getattr(item, field) for field in field_names])
+                writer.writerow([getattr(item, field)
+                                for field in field_names])
 
         return file_path
 
@@ -389,11 +351,13 @@ def export_assets_to_csv(file_path, model_name):
 
         with open(file_path, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            field_names = [field.name for field in CustomAssetDetails._meta.fields]
+            field_names = [
+                field.name for field in CustomAssetDetails._meta.fields]
             writer.writerow(field_names)
 
             for item in custom_assets_details:
-                writer.writerow([getattr(item, field) for field in field_names])
+                writer.writerow([getattr(item, field)
+                                for field in field_names])
 
         return file_path
 
@@ -417,7 +381,8 @@ class ImportDBView(APIView):
         if not model_name:
             return Response({"error": "Название актива не указано."}, status=400)
 
-        file_path = os.path.join(settings.MEDIA_ROOT, "databases", f"{model_name}.csv")
+        file_path = os.path.join(
+            settings.MEDIA_ROOT, "databases", f"{model_name}.csv")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         exported_file_path = export_assets_to_csv(file_path, model_name)
@@ -436,7 +401,7 @@ def import_csv_to_db(file_path, model_name):
     model = model_mapping.get(model_name.lower())
 
     if model:
-        
+
         try:
             model.objects.all().delete()
 
@@ -472,7 +437,8 @@ def import_csv_to_db(file_path, model_name):
                         #     row[field] = None if date_string == "" else row[field]
 
                         date_string = (
-                            row[field].strip() if isinstance(row[field], str) else None
+                            row[field].strip() if isinstance(
+                                row[field], str) else None
                         )
 
                         if "Дата" in field and isinstance(row[field], str):
@@ -508,7 +474,8 @@ def import_csv_to_db(file_path, model_name):
 
     else:
         asset_name = os.path.splitext(os.path.basename(file_path))[0]
-        custom_asset, created = CustomAsset.objects.get_or_create(Название=asset_name)
+        custom_asset, created = CustomAsset.objects.get_or_create(
+            Название=asset_name)
 
         if created:
             print(f"Создан новый актив: {asset_name}")
@@ -525,7 +492,8 @@ def import_csv_to_db(file_path, model_name):
                 for row in reader:
                     for field in row:
                         date_string = (
-                            row[field].strip() if isinstance(row[field], str) else None
+                            row[field].strip() if isinstance(
+                                row[field], str) else None
                         )
 
                         if "Дата" in field and isinstance(row[field], str):
@@ -550,7 +518,8 @@ def import_csv_to_db(file_path, model_name):
 
                     try:
                         asset_value = row.pop("Актив", None)
-                        instance = CustomAssetDetails(Актив=custom_asset, **row)
+                        instance = CustomAssetDetails(
+                            Актив=custom_asset, **row)
                         instances.append(instance)
                     except Exception as e:
                         print(
@@ -571,7 +540,7 @@ class ExportDBView(APIView):
     serializer_class = ExportFileSerializer
     parser_classes = (MultiPartParser, FormParser)
     model_name = ""
-    
+
     def post(self, request, *args, **kwargs):
         model_name = request.data.get("name")
         file = request.FILES.get("file")
@@ -589,11 +558,12 @@ class ExportDBView(APIView):
             )
 
         self.model_name = model_name
-        
+
         return self.perform_create(file, model_name)
 
     def perform_create(self, file, model_name):
-        file_path = os.path.join(settings.MEDIA_ROOT, "uploads", f"{model_name}.csv")
+        file_path = os.path.join(
+            settings.MEDIA_ROOT, "uploads", f"{model_name}.csv")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         with open(file_path, "wb") as f:
@@ -615,8 +585,7 @@ class ExportDBView(APIView):
 
 class HandbookView(APIView):
     def get(self, request, asset, pk=None):
-        
-        
+
         model = handbook_mapping.get(asset)
         if not model:
             return Response({"error": "Такого справочника не существует."}, status=400)
@@ -627,11 +596,11 @@ class HandbookView(APIView):
             queryset = model.objects.filter(pk=pk)
             if not queryset.exists():
                 return Response({"error": "Запись не найдена."}, status=404)
-        
+
         serializer_class = handbook_serializer_mapping.get(asset)
         if not serializer_class:
             return Response({"error": "Нет подходящего сериализатора."}, status=400)
-        
+
         serializer = serializer_class(queryset, many=True)
 
         result = defaultdict(set)
@@ -639,32 +608,39 @@ class HandbookView(APIView):
             for key, value in item.items():
                 if value:
                     result[key].add(value)
-        
+
         result = {key: list(value) for key, value in result.items()}
-        
+
         return Response(result, status=status.HTTP_200_OK)
-    
+
     def post(self, request, asset):
-        
+
         data = request.data
         model = handbook_mapping.get(asset)
         serializer_class = handbook_serializer_mapping.get(asset)
         if not model:
             return Response({"error": "Такого справочника не существует."}, status=400)
-        
+
         if not data:
             return Response({"error": "Данные не были переданы."}, status=400)
-        
+
         if not serializer_class:
             return Response({"error": "Нет подходящего сериализатора."}, status=400)
-        
+
+        serializer = serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, asset, pk):
         model = handbook_mapping.get(asset)
         serializer_class = handbook_serializer_mapping.get(asset)
 
         if not model:
             return Response({"error": "Такого справочника не существует."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         if not serializer_class:
             return Response({"error": "Нет подходящего сериализатора."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -673,7 +649,8 @@ class HandbookView(APIView):
         except model.DoesNotExist:
             return Response({"error": "Запись не найдена."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = serializer_class(instance, data=request.data, partial=False)
+        serializer = serializer_class(
+            instance, data=request.data, partial=False)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -693,6 +670,3 @@ class HandbookView(APIView):
 
         instance.delete()
         return Response({"message": "Запись удалена."}, status=status.HTTP_204_NO_CONTENT)
-        
-        
-        

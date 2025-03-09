@@ -11,7 +11,7 @@ from .views import (
     RepairsViewSet,
     MovementsViewSet,
     AssetsListView,
-    HandbookView
+    HandbookView,
 )
 
 
@@ -172,6 +172,7 @@ urlpatterns = [
         "handbooks/<str:asset>/<int:pk>/",
         HandbookView.as_view(),
         name="handbooks_with_id",
-    )
+    ),
+
 
 ]

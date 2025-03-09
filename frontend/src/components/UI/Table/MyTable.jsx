@@ -88,7 +88,7 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 
 	}, [fullData, setLicenseStatus, setWarningDate, setDangerDate]);
 
-	if (!fullData || fullData.length === 0) return <p>Нет данных</p>;
+	if (!fullData || fullData.length === 0) return <p className="p-3">Нет данных</p>;
 
 	const assetsUrls = {
 		components: {
