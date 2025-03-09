@@ -81,8 +81,37 @@ body, html, #root {
 	padding-bottom: 3rem;
 }
 
+.px-1 {
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+}
+
+.px-2 {
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+}
+
+.px-3 {
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+.px-4 {
+	padding-left: 1.5rem;
+	padding-right: 1.5rem;
+}
+
+.px-5 {
+	padding-left: 3rem;
+	padding-right: 3rem;
+}
+
 .w-100 {
 	width: 100%;
+}
+
+.w-fit {
+	width: fit-content;
 }
 
 .d-flex {
@@ -152,6 +181,22 @@ body, html, #root {
 button {
 	cursor: pointer !important;
 }
+button:hover {
+	background-color: #bfbfbf !important;
+	color: #191919 !important;
+	border: 2px solid #bfbfbf !important;
+	transition: all 0.1s ease-in-out;
+}
+
+.btn-primary {
+	background-color: black;
+	color: #fff;
+	border: 1px solid black;
+}
+.btn-tab {
+	border-radius: 0;
+	border: 2px solid #ffffff00 !important;
+}
 
 .text-capitalize {
 	text-transform: capitalize;
@@ -178,7 +223,8 @@ button {
 }
 	
 .alertBox {
-	width: fit-content;
+	width: fit-content !important;
+	max-width: 100%;
 	padding: 1rem;
 	margin: 0.5rem 0;
 	border: 1px solid #ccc;
@@ -187,6 +233,11 @@ button {
 	align-items: center;
 	justify-content: space-between;
 	gap: 0.5rem;
+}
+
+.alertBox > button {
+	width: fit-content !important;
+	border-radius: 4px;
 }
 
 .alertBox.error {

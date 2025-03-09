@@ -11,6 +11,7 @@ from .views import (
     RepairsViewSet,
     MovementsViewSet,
     AssetsListView,
+    HandbookView
 )
 
 
@@ -162,4 +163,15 @@ urlpatterns = [
         ExportDBView.as_view(),
         name="export_db",
     ),
+    path(
+        "handbooks/<str:asset>/",
+        HandbookView.as_view(),
+        name="handbooks",
+    ),
+    path(
+        "handbooks/<str:asset>/<int:pk>/",
+        HandbookView.as_view(),
+        name="handbooks_with_id",
+    )
+
 ]

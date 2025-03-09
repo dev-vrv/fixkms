@@ -14,6 +14,8 @@ export const translateAssets = (text) => {
 			return "Ремонт";
 		case "users":
 			return "Пользователи";
+		case "handbooks":
+			return "Справочники";
 		default:
 			return text;
 	}

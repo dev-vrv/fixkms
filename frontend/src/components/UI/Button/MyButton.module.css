@@ -3,19 +3,23 @@
 	min-width: 2.75rem;
 	border-radius: 0.75rem;
 	font-size: 0.9rem;
-	padding: 0.5rem;
+	padding: 0.5rem 0.75rem;
 	border: 2px black solid;
 	width: 100%;
 }
 
+.button:hover {
+	background: #f0f0f0;
+}
+
 .active {
 	color: white;
-	background: black;
+	background: black !important;
 }
 
 .button.disabled {
 	background-color: #ccc;
-	border: 1px solid #797979;
+	border: 2px solid #797979;
 	color: #797979;
 	pointer-events: none;
 }

@@ -1,58 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { fetchData, fetchExportData, fetchImportData } from "../../utils/fetchData";
-import Button from "../../components/UI/Button/MyButton";
+import HandbooksTabs from "../../components/UI/HandbooksTabs/HandbooksTabs";
+import MyButton from "../../components/UI/Button/MyButton";
 import Loader from "../../components/UI/Loader/Loader";
 import classes from "../Page.module.css";
 import MyTable from "../../components/UI/Table/MyTable";
+import AssetFormGenerator from "../../components/UI/Forms/AssetFormGenerator";
+import { translateAssets } from "../../utils/assets";
+import ImportForm from "../../components/UI/Forms/ImportForm";
 
-// Импортируем формы для разных типов
-import EquipmentForm from "../../components/UI/Forms/EquipmentForm";
-import ProgramsForm from "../../components/UI/Forms/ProgramsForm";
-import ComponentsForm from "../../components/UI/Forms/ComponentsForm";
-import ConsumablesForm from "../../components/UI/Forms/ConsumablesForm";
-import RepairsForm from "../../components/UI/Forms/RepairsForm";
-import MovementsForm from "../../components/UI/Forms/MovementsForm";
-import UserForm from "../../components/UI/Forms/UserForm";
+const handbooksList = ["equipments", "programs", "components", "consumables"]
 
-const Assets = () => {
-  const tab = window.location.pathname.split("/assets/")[1]; // Делаем это для извлечения текущей страницы
-  const [data, setData] = useState(null);
+
+const AssetsActions = ({ role, tab, data, setData }) => {
   const [formVisible, setFormVisible] = useState(false);
   const [importFormVisible, setImportFormVisible] = useState(false);
-  const [role, setRole] = useState(null);
-  const [file, setFile] = useState(null);
   const [importAlert, setImportAlert] = useState(null);
   const [importAlertType, setImportAlertType] = useState(null);
+  const [file, setFile] = useState(null);
+  const [optionsData, setOptionsData] = useState(null);
 
   useEffect(() => {
-    fetchData("assets", "get", null, setData);
-    localStorage.getItem("user") && setRole(JSON.parse(localStorage.getItem("user")).role);
-  }, []);
+
+    setOptionsData(null);
+    if (formVisible && handbooksList.includes(tab)) {
+      fetchData(`assets/handbooks/${tab}`, "get", null, setOptionsData);
+    }
+  }
+    , [formVisible, setOptionsData, tab]);
 
   const exportData = () => {
     fetchExportData("assets/import", { name: tab });
-  };
-
-  // Логика для отображения нужной формы
-  const getFormComponent = () => {
-    switch (tab) {
-      case "equipments":
-        return <EquipmentForm onClose={toggleFormVisibility} />;
-      case "programs":
-        return <ProgramsForm onClose={toggleFormVisibility} />;
-      case "components":
-        return <ComponentsForm onClose={toggleFormVisibility} />;
-      case "consumables":
-        return <ConsumablesForm onClose={toggleFormVisibility} />;
-      case "repairs":
-        return <RepairsForm onClose={toggleFormVisibility} />;
-      case "movements":
-        return <MovementsForm onClose={toggleFormVisibility} />;
-      case "users":
-        return <UserForm onClose={toggleFormVisibility} />;
-      default:
-        return null;
-    }
   };
 
   const toggleFormVisibility = () => {
@@ -91,87 +69,112 @@ const Assets = () => {
           setImportAlert(null);
           setImportAlertType(null);
         },
-        2000);
+          2000);
       }
     );
   };
 
+  const ActionsButtons = () => {
+    return (
+      <div className="d-flex gap-3">
+        <MyButton
+          text="Обновить данные"
+          onClick={() => {
+            fetchData("assets", "get", null, setData);
+            alert("Данные обновлены!");
+          }}
+          style={{ width: "fit-content" }}
+        />
+        <MyButton
+          text="Добавить новую запись"
+          onClick={toggleFormVisibility}
+          style={{ width: "fit-content" }}
+          disabled={role === "user"}
+        />
+        {tab !== "users" && (
+          <>
+            <MyButton
+              text="Импортировать CSV"
+              onClick={toggleImportFormVisibility}
+              style={{ width: "fit-content" }}
+              disabled={role === "user"}
+            />
+            <MyButton
+              text="Экспортировать CSV"
+              onClick={exportData}
+              style={{ width: "fit-content" }}
+            />
+          </>
+        )}
+      </div>
+    )
+  };
+
+  return (
+    <>
+      <div className="p-3 px-3 border-bottom d-flex justify-content-between gap-3">
+        <ActionsButtons />
+      </div>
+
+      {formVisible && (
+        <div className="p-3 border rounded form-container">
+          {<AssetFormGenerator
+            onClose={toggleFormVisibility}
+            options={optionsData}
+            asset={tab}
+            title={`Добавить ${translateAssets(tab)}`}
+            endPoint={`assets/${tab}`}
+          />}
+        </div>
+      )}
+
+      {importFormVisible && <div className="p-3 border rounded form-container">
+        {<ImportForm
+          tab={tab}
+          importAlert={importAlert}
+          setImportAlert={setImportAlert}
+          importAlertType={importAlertType}
+          setImportAlertType={setImportAlertType}
+          handleImportSubmit={handleImportSubmit}
+          handleFileChange={handleFileChange}
+          toggleImportFormVisibility={toggleImportFormVisibility}
+          visible={importFormVisible}
+        />}
+      </div>}
+    </>
+  );
+};
+
+
+const Assets = () => {
+  const tab = window.location.pathname.split("/assets/")[1];
+  const [data, setData] = useState(null);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    fetchData("assets", "get", null, setData);
+    localStorage.getItem("user") && setRole(JSON.parse(localStorage.getItem("user")).role);
+  }, []);
 
   return (
     <div className={classes.main + " main"}>
-      <div className="p-3 border-bottom d-flex justify-content-between gap-3">
-        <div className="d-flex gap-3">
-          <Button
-            text="Обновить данные"
-            onClick={() => {
-              fetchData("assets", "get", null, setData);
-              alert("Данные обновлены!");
-            }}
-            style={{ width: "fit-content" }}
-          />
-          <Button
-            text="Добавить новую запись"
-            onClick={toggleFormVisibility}
-            style={{ width: "fit-content" }}
-            disabled={role === "user"}
-          />
-          {tab !== "users" && (
-            <>
-              <Button
-                text="Импортировать CSV"
-                onClick={toggleImportFormVisibility}
-                style={{ width: "fit-content" }}
-                disabled={role === "user"}
-              />
-              <Button
-                text="Экспортировать CSV"
-                onClick={exportData}
-                style={{ width: "fit-content" }}
-              />
-            </>
-          )}
-        </div>
-      </div>
-
-      {data ? (
+      {data && tab === 'handbooks' && (
         <div className="p-3">
-          <MyTable fulldata={data[tab]} tabName={tab} role={role} />
-        </div>
-      ) : (
-        <div style={{ margin: "auto" }}>
-          <Loader />
+          <HandbooksTabs data={data.handbooks} sync={() => { fetchData("assets", "get", null, setData); }} role={role} />
         </div>
       )}
-
-      <div className="p-3">
-        {formVisible && <div className="p-3 border rounded form-container">{getFormComponent()}</div>}
-      </div>
-
-      {/* Форма импорта CSV */}
-      {importFormVisible && (
-        <div className="p-3 border rounded form-container">
-          <h3>Импортировать CSV для {tab}</h3>
-          {importAlert && <div className={`alertBox ${importAlertType}`}>
-            {importAlert}
-            <button type="button" className="p-1" onClick={() => {
-              setImportAlert(null);
-              setImportAlertType(null);
-            }}>X</button>
-          </div>}
-          <form onSubmit={handleImportSubmit} className="d-flex flex-column gap-3">
-            <label>Выберите файл</label>
-            <input type="file" accept=".csv" onChange={handleFileChange} className="form-control" />
-            <div className="d-flex gap-2">
-              <Button text="Отправить" type="submit" style={{ width: "fit-content" }} />
-              <Button text="Отмена" type="button" style={{ width: "fit-content" }} onClick={() => {
-                toggleImportFormVisibility(false);
-                setImportAlert(null);
-                setImportAlertType(null);
-              }} />
-            </div>
-          </form>
-        </div>
+      {data && tab !== 'handbooks' && (
+        <>
+          <AssetsActions
+            role={role}
+            tab={tab}
+            data={data}
+            setData={setData}
+          />
+          <MyTable fullData={data[tab]} tab={tab} role={role} />
+        </>
       )}
+      {!data && <Loader />}
     </div>
   );
 };

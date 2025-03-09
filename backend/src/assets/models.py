@@ -2,6 +2,7 @@ from django.db import models
 
 
 # base assets
+
 class BaseAssetA(models.Model):
     Компания = models.CharField(max_length=255, blank=True, null=True)
     Местоположение = models.CharField(max_length=255, blank=True, null=True)
@@ -104,6 +105,7 @@ class BaseAssetWrranty(models.Model):
 
 
 # standart assets
+
 class Equipments(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAssetTMPN):
     Серисная_Организация = models.CharField(max_length=255, blank=True, null=True)
     Диагональ = models.FloatField(blank=True, null=True)
@@ -244,6 +246,7 @@ class Movements(models.Model):
 
 
 # custom assets
+
 class CustomAsset(models.Model):
     Название = models.CharField(max_length=255, unique=True)
 
@@ -267,3 +270,58 @@ class ExportFile(models.Model):
 
     def __str__(self):
         return self.file.name if self.file.name else 'Имя файла не указано'
+
+
+# handbooks
+
+
+class HandbookEquipments(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAssetTMPN):
+    Название = models.CharField(max_length=255, blank=True, null=True)
+    Серисная_Организация = models.CharField(max_length=255, blank=True, null=True)
+    Диагональ = models.FloatField(blank=True, null=True)
+    Количество_Мегапикселей = models.FloatField(blank=True, null=True)
+    Количество_портов = models.IntegerField(blank=True, null=True)
+    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return ''
+
+
+class HandbookPrograms(BaseAssetA, BaseAssetB, BaseAssetC):
+    Название = models.CharField(max_length=255, blank=True, null=True)
+    Версия = models.CharField(max_length=255, blank=True, null=True)
+    Ключ_Продукта = models.CharField(max_length=255, blank=True, null=True)
+    Код_Активации = models.CharField(max_length=255, blank=True, null=True)
+    Дистрибутив = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return ''
+    
+    
+class HandbookComponents(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAssetTMPN):
+    Название = models.CharField(max_length=255, blank=True, null=True)
+    Серийный_Номер_Связанного_Объекта = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+
+    def __str__(self):
+        return ''
+    
+    
+class HandbookConsumables(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetTMPN):
+    Название = models.CharField(max_length=255, blank=True, null=True)
+    Количество = models.IntegerField(blank=True, null=True)
+    Сумма = models.FloatField(blank=True, null=True)
+    Серийный_Номер_Связанного_Объекта = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+    def __str__(self):
+        return ''

@@ -26,11 +26,13 @@ const Login = () => {
 					type="text"
 					placeholder="Введите логин"
 					onChange={(event) => handleChange(event, "username")}
+					className="w-100"
 				/>
 				<MyInput
 					type="password"
 					placeholder="Введите пароль"
 					onChange={(event) => handleChange(event, "password")}
+					className="w-100"
 				/>
 
 				<MyButton

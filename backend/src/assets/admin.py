@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Equipments, Programs, Components, Consumables, Repairs, Movements,
-    CustomAsset, CustomAssetDetails, ExportFile
+    CustomAsset, CustomAssetDetails, ExportFile, HandbookConsumables, HandbookComponents, HandbookEquipments, HandbookPrograms
 )
 
 
@@ -71,3 +71,29 @@ class CustomAssetDetailsAdmin(admin.ModelAdmin):
 @admin.register(ExportFile)
 class ExportFileAdmin(admin.ModelAdmin):
     list_display = ('file',)
+    
+
+@admin.register(HandbookConsumables)
+class HandbookConsumablesAdmin(admin.ModelAdmin):
+    list_display = ('Название', 'Стоимость',)
+    search_fields = ('Название',)
+    list_filter = ('Стоимость',)
+    
+@admin.register(HandbookComponents)
+class HandbookComponentsAdmin(admin.ModelAdmin):
+    list_display = ('Название', 'Стоимость',)
+    search_fields = ('Название',)
+    list_filter = ('Стоимость',)
+    
+    
+@admin.register(HandbookEquipments)
+class HandbookEquipmentsAdmin(admin.ModelAdmin):
+    list_display = ('Название', 'Стоимость',)
+    search_fields = ('Название',)
+    list_filter = ('Стоимость',)
+    
+@admin.register(HandbookPrograms)
+class HandbookProgramsAdmin(admin.ModelAdmin):
+    list_display = ('Название', 'Стоимость', )
+    search_fields = ('Название',)
+    list_filter = ('Стоимость',)

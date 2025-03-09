@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
+from collections import defaultdict
 from .models import (
     CustomAsset,
     CustomAssetDetails,
@@ -17,6 +18,10 @@ from .models import (
     Consumables,
     Repairs,
     Movements,
+    HandbookComponents,
+    HandbookConsumables,
+    HandbookEquipments,
+    HandbookPrograms,
 )
 from assets.serializers import (
     CustomAssetDetailsSerializer,
@@ -28,6 +33,10 @@ from assets.serializers import (
     ConsumablesSerializer,
     RepairsSerializer,
     MovementsSerializer,
+    HandbookComponentsSerializer,
+    HandbookConsumablesSerializer,
+    HandbookEquipmentsSerializer,
+    HandbookProgramsSerializer,
 )
 from accounts.serializers import UserSerializer
 from accounts.models import User
@@ -42,6 +51,20 @@ model_mapping = {
     "components": Components,
     "consumables": Consumables,
     "programs": Programs,
+}
+
+handbook_mapping = {
+    "components": HandbookComponents,
+    "consumables": HandbookConsumables,
+    "equipments": HandbookEquipments,
+    "programs": HandbookPrograms,
+}
+
+handbook_serializer_mapping = {
+    "components": HandbookComponentsSerializer,
+    "consumables": HandbookConsumablesSerializer,
+    "equipments": HandbookEquipmentsSerializer,
+    "programs": HandbookProgramsSerializer,
 }
 
 
@@ -322,6 +345,12 @@ class AssetsListView(APIView):
         
         if user.Роль == "admin":
             data['users'] = UserSerializer(User.objects.all(), many=True).data
+            data['handbooks'] = {
+                "components": HandbookComponentsSerializer(HandbookComponents.objects.all(), many=True).data,
+                "consumables": HandbookConsumablesSerializer(HandbookConsumables.objects.all(), many=True).data,
+                "equipments": HandbookEquipmentsSerializer(HandbookEquipments.objects.all(), many=True).data,
+                "programs": HandbookProgramsSerializer(HandbookPrograms.objects.all(), many=True).data,
+            }        
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -582,3 +611,88 @@ class ExportDBView(APIView):
             {"detail": imported_file_path},
             status=status.HTTP_201_CREATED,
         )
+
+
+class HandbookView(APIView):
+    def get(self, request, asset, pk=None):
+        
+        
+        model = handbook_mapping.get(asset)
+        if not model:
+            return Response({"error": "Такого справочника не существует."}, status=400)
+
+        if not pk:
+            queryset = model.objects.all()
+        else:
+            queryset = model.objects.filter(pk=pk)
+            if not queryset.exists():
+                return Response({"error": "Запись не найдена."}, status=404)
+        
+        serializer_class = handbook_serializer_mapping.get(asset)
+        if not serializer_class:
+            return Response({"error": "Нет подходящего сериализатора."}, status=400)
+        
+        serializer = serializer_class(queryset, many=True)
+
+        result = defaultdict(set)
+        for item in serializer.data:
+            for key, value in item.items():
+                if value:
+                    result[key].add(value)
+        
+        result = {key: list(value) for key, value in result.items()}
+        
+        return Response(result, status=status.HTTP_200_OK)
+    
+    def post(self, request, asset):
+        
+        data = request.data
+        model = handbook_mapping.get(asset)
+        serializer_class = handbook_serializer_mapping.get(asset)
+        if not model:
+            return Response({"error": "Такого справочника не существует."}, status=400)
+        
+        if not data:
+            return Response({"error": "Данные не были переданы."}, status=400)
+        
+        if not serializer_class:
+            return Response({"error": "Нет подходящего сериализатора."}, status=400)
+        
+    def put(self, request, asset, pk):
+        model = handbook_mapping.get(asset)
+        serializer_class = handbook_serializer_mapping.get(asset)
+
+        if not model:
+            return Response({"error": "Такого справочника не существует."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not serializer_class:
+            return Response({"error": "Нет подходящего сериализатора."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            instance = model.objects.get(pk=pk)
+        except model.DoesNotExist:
+            return Response({"error": "Запись не найдена."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = serializer_class(instance, data=request.data, partial=False)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, asset, pk):
+        model = handbook_mapping.get(asset)
+
+        if not model:
+            return Response({"error": "Такого справочника не существует."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            instance = model.objects.get(pk=pk)
+        except model.DoesNotExist:
+            return Response({"error": "Запись не найдена."}, status=status.HTTP_404_NOT_FOUND)
+
+        instance.delete()
+        return Response({"message": "Запись удалена."}, status=status.HTTP_204_NO_CONTENT)
+        
+        
+        
