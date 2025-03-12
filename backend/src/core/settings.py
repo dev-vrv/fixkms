@@ -9,7 +9,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '../.env'))
 
 
 SECRET_KEY = "django-insecure-vjs$rbbyu+ks9%52_cxwu2yn&aoo3!@hjmh-))+dlqsgh93o1j"
-DEBUG = True
+DEBUG = False
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -19,6 +19,9 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "77.95.201.66",
+    "77.95.201.66:8000",
+    "77.95.201.66:3000",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
