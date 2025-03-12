@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchData, fetchExportData, fetchImportData } from "../../utils/fetchData";
+import { fetchData, fetchExportData, fetchForm, fetchImportData } from "../../utils/fetchData";
 import HandbooksTabs from "../../components/UI/HandbooksTabs/HandbooksTabs";
 import MyButton from "../../components/UI/Button/MyButton";
 import Loader from "../../components/UI/Loader/Loader";
@@ -8,8 +8,95 @@ import MyTable from "../../components/UI/Table/MyTable";
 import AssetFormGenerator from "../../components/UI/Forms/AssetFormGenerator";
 import { translateAssets } from "../../utils/assets";
 import ImportForm from "../../components/UI/Forms/ImportForm";
+import Cookies from "js-cookie";
 
 const handbooksList = ["equipments", "programs", "components", "consumables"]
+
+const ChangePassForm = ({ setShowChangePassForm }) => {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPassword2, setNewPassword2] = useState("");
+  const [alert, setAlert] = useState(null);
+  const [alertStatus, setAlertStatus] = useState(null);
+
+  const handleChangePass = (e) => {
+    e.preventDefault();
+
+    if (!oldPassword || !newPassword || !newPassword2) {
+      setAlert("Заполните все поля!");
+      setAlertStatus("error");
+      return;
+    }
+    else if (newPassword !== newPassword2) {
+      setAlert("Пароли не совпадают!");
+      setAlertStatus("error");
+      return;
+    }
+    else {
+      fetchForm("auth/change-password", "post", { old_password: oldPassword, new_password: newPassword }).then((response) => {
+        setAlert(response.data.message || response.data.detail);
+        setAlertStatus(response.status === 200 ? "success" : "error");
+        if (response.status === 200) {
+          setTimeout(() => {
+            setShowChangePassForm(false);
+            setAlert(null);
+            setAlertStatus(null);
+          }, 2000
+          );
+        }
+      });
+    }
+  };
+
+  return (
+    <form className="form-container d-flex flex-column gap-3 p-3" onSubmit={handleChangePass}>
+      {alert && <div className={`alertBox ${alertStatus}`}>
+        {alert}
+        <MyButton text="X" onClick={() => {
+          setAlert(null);
+          setAlertStatus(null);
+        }} />   
+      </div>}
+      <div className="form-group d-flex flex-column gap-1">
+        <label htmlFor="oldPassword">Старый пароль</label>
+        <input
+          type="password"
+          className="form-control"
+          id="oldPassword"
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group d-flex flex-column gap-1">
+        <label htmlFor="newPassword">Новый пароль</label>
+        <input
+          type="password"
+          className="form-control"
+          id="newPassword"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group d-flex flex-column gap-1">
+        <label htmlFor="newPassword2">Повторите новый пароль</label>
+        <input
+          type="password"
+          className="form-control"
+          id="newPassword2"
+          value={newPassword2}
+          onChange={(e) => setNewPassword2(e.target.value)}
+        />
+      </div>
+
+      <div className="d-flex gap-2">
+        <MyButton className="w-fit" text="Отмена" onClick={() => setShowChangePassForm(false)} />
+        <MyButton className="w-fit btn-danger" text="Сменить пароль" type="submit" />
+      </div>
+    </form>
+  );
+};
 
 
 const AssetsActions = ({ role, tab, data, setData }) => {
@@ -19,6 +106,8 @@ const AssetsActions = ({ role, tab, data, setData }) => {
   const [importAlertType, setImportAlertType] = useState(null);
   const [file, setFile] = useState(null);
   const [optionsData, setOptionsData] = useState(null);
+  const [showChangePassForm, setShowChangePassForm] = useState(false);
+
 
   useEffect(() => {
 
@@ -74,6 +163,29 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     );
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetchData("auth/logout", "post", { refresh_token: Cookies.get("refresh") });
+
+      // Полное удаление токенов
+      localStorage.removeItem("user");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      Cookies.remove("access");
+      Cookies.remove("refresh");
+
+      // Перенаправляем на страницу логина
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const handleChangePass = () => {
+    setShowChangePassForm(true);
+  };
+
+
   const ActionsButtons = () => {
     return (
       <div className="d-flex gap-3 align-items-center" style={{ width: "100%", justifyContent: "space-between" }}>
@@ -109,19 +221,22 @@ const AssetsActions = ({ role, tab, data, setData }) => {
           )}
         </div>
 
-        <MyButton
-          text={"Выйти"}
-          onClick={() => {
-            localStorage.removeItem("user");
-            window.location.reload();
-          }}
-          style={{ width: "fit-content" }}
-          className="btn-danger"
-        />
-      </div>
+        <div className="d-flex gap-2">
+          <MyButton className="w-fit btn-danger" text="Сменить пароль" onClick={() => handleChangePass()} />
 
+          <MyButton
+            text={"Выйти"}
+            onClick={() => handleLogout()}
+            style={{ width: "fit-content" }}
+            className="btn-danger"
+          />
+
+        </div>
+        {showChangePassForm && <ChangePassForm showChangePassForm={showChangePassForm} setShowChangePassForm={setShowChangePassForm} />}
+      </div>
     )
   };
+
 
   return (
     <>

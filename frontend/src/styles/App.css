@@ -120,27 +120,27 @@ body, html, #root {
 }
 
 .justify-content-center {
-	justify-content: center;
+	justify-content: center !important;
 }
 
 .justify-content-between {
-	justify-content: space-between;
+	justify-content: space-between !important;
 }
 
 .align-items-center {
-	align-items: center;
+	align-items: center !important;
 }
 
 .flex-column {
-	flex-direction: column;
+	flex-direction: column !important;
 }
 
 .flex-row {
-	flex-direction: row;
+	flex-direction: row !important;
 }
 
 .text-center {
-	text-align: center;
+	text-align: center !important;
 }
 
 .flex-wrap {

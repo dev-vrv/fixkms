@@ -42,10 +42,6 @@ from accounts.serializers import UserSerializer
 from accounts.models import User
 import csv
 import os
-from faker import Faker
-from django.http import JsonResponse
-
-faker = Faker('ru_RU')
 
 
 model_mapping = {
@@ -87,6 +83,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         )
 
     def update(self, request, *args, **kwargs):
+        print(request.data)
         if request.user.Роль != "admin":
             raise PermissionDenied("Вы не можете редактировать записи.")
 

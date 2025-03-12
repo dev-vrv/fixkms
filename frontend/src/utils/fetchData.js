@@ -1,13 +1,15 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+const API_URL = "http://127.0.0.1:8000/api/";
+
 export const refreshTokens = async () => {
 	const refresh = Cookies.get("refresh");
 
 	if (!refresh) return console.warn("Refresh token отсутствует!") || false;
 
 	try {
-		const { data } = await axios.post("http://localhost:8000/api/auth/token/", { refresh });
+		const { data } = await axios.post(`${API_URL}auth/token/`, { refresh });
 
 		Cookies.set("access", data.access, {
 			expires: 15 / 1440,
@@ -41,7 +43,7 @@ export const fetchData = async (
 	try {
 		const response = await axios({
 			method,
-			url: `http://localhost:8000/api/${url}/`,
+			url: `${API_URL}${url}/`,
 			data,
 			headers: {
 				Authorization: `Bearer ${access}`,
@@ -96,7 +98,7 @@ export const fetchImportData = async (url, file, modelName, setFetchError = null
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("name", modelName);
-		const response = await axios.post(`http://localhost:8000/api/${url}/`, formData, {
+		const response = await axios.post(`${API_URL}/${url}/`, formData, {
 			headers: {
 				Authorization: `Bearer ${access}`,
 				"Content-Type": "multipart/form-data",
@@ -118,19 +120,18 @@ export const fetchExportData = async (url, data = null, setFetchError = null, se
 
 	try {
 		const response = await axios({
-			method: "POST", // Используем POST для отправки данных
-			url: `http://localhost:8000/api/${url}/`, // Предполагаем, что серверная часть ожидает запрос по такому пути
+			method: "POST",
+			url: `${API_URL}${url}/`,
 			data,
 			headers: {
 				Authorization: `Bearer ${access}`,
 				"Content-Type": "application/json",
 			},
-			responseType: "blob", // Указываем, что ожидаем получить файл
+			responseType: "blob",
 		});
 
 		console.log("Успех:", response.data);
 
-		// Проверяем успешность запроса
 		if (response.status === 200) {
 			// Создаем ссылку для скачивания
 			const link = document.createElement("a");
@@ -161,7 +162,7 @@ export const fetchForm = async (url, method, data = null) => {
 	try {
 		const response = await axios({
 			method,
-			url: `http://localhost:8000/api/${url}/`,
+			url: `${API_URL}${url}/`,
 			data,
 			headers: {
 				Authorization: `Bearer ${access}`,

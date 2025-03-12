@@ -1,24 +1,21 @@
 #!/bin/sh
 
-set -e
-
-echo "Waiting for PostgreSQL to start..."
-until PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q' > /dev/null 2>&1; do
+# Ожидаем, пока база данных станет доступной
+echo "Ждём доступности базы данных..."
+while ! nc -z db 5432; do   
   sleep 1
 done
-echo "PostgreSQL is up - executing command"
+echo "База данных доступна!"
 
-echo  "Make migrations"
-python manage.py makemigrations
+# Выполняем миграции
+echo "Выполняем миграции..."
+python manage.py makemigrations --noinput
+python manage.py migrate --noinput
 
-echo  "Migrate"
-python manage.py migrate
+# Запускаем тесты
+echo "Запускаем тесты..."
+python manage.py test || exit 1  # Выход с кодом 1, если тесты не прошли
 
-echo  "Collect static"
-python manage.py collectstatic --noinput
-
-# Переходим в папку `src`, где лежит `core.wsgi`
-cd /app/src
-
-# Запускаем Gunicorn с правильным путем
-exec gunicorn --bind 0.0.0.0:8000 core.wsgi:application --workers 3
+# Запускаем Django сервер
+echo "Запускаем Django сервер..."
+exec python manage.py runserver 0.0.0.0:8000
