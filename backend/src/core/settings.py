@@ -9,7 +9,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '../.env'))
 
 
 SECRET_KEY = "django-insecure-vjs$rbbyu+ks9%52_cxwu2yn&aoo3!@hjmh-))+dlqsgh93o1j"
-DEBUG = False
+DEBUG = True
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
