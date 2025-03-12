@@ -13,19 +13,9 @@ DEBUG = True
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = [
-    "*",
-    "localhost",
-    "127.0.0.1",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "77.95.201.66",
-    "77.95.201.66:8000",
-    "77.95.201.66:3000",
-]
 
 CORS_ALLOW_ALL_ORIGINS = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "django"]
+ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost", "django", "77.95.201.66"]
 CORS_ALLOW_CREDENTIALS = True
 
 INSTALLED_APPS = [
