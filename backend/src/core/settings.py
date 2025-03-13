@@ -94,7 +94,7 @@ DATABASES = {
         "NAME": "postgres_fxkms",
         "USER": "postgres_fxkms",
         "PASSWORD": "postgres_fxkms",
-        "HOST": "localhost",
+        "HOST": "db",
         "PORT": "5432",
     }
 }

@@ -9,7 +9,9 @@ import AssetFormGenerator from "../../components/UI/Forms/AssetFormGenerator";
 import { translateAssets } from "../../utils/assets";
 import ImportForm from "../../components/UI/Forms/ImportForm";
 import Cookies from "js-cookie";
-
+import EquimpentReportForm from "../../components/UI/Forms/EquimpentReportForm";
+import BrokenEquipmentReportForm from "../../components/UI/Forms/BrokenEquipmentReportForm";
+import TemporaryEquipmentReportForm from "../../components/UI/Forms/TemporaryEquipmentReportForm";
 const handbooksList = ["equipments", "programs", "components", "consumables", "users"];
 
 const ChangePassForm = ({ setShowChangePassForm }) => {
@@ -55,7 +57,7 @@ const ChangePassForm = ({ setShowChangePassForm }) => {
         <MyButton text="X" onClick={() => {
           setAlert(null);
           setAlertStatus(null);
-        }} />   
+        }} />
       </div>}
       <div className="form-group d-flex flex-column gap-1">
         <label htmlFor="oldPassword">Старый пароль</label>
@@ -104,8 +106,8 @@ const FormEndpointsMap = {
   components: "assets/components",
   consumables: "assets/consumables",
   users: "auth/users/create",
-
 }
+
 
 const AssetsActions = ({ role, tab, data, setData }) => {
   const [formVisible, setFormVisible] = useState(false);
@@ -115,10 +117,11 @@ const AssetsActions = ({ role, tab, data, setData }) => {
   const [file, setFile] = useState(null);
   const [optionsData, setOptionsData] = useState(null);
   const [showChangePassForm, setShowChangePassForm] = useState(false);
-
+  const [showEquipmentReportForm, setShowEquipmentReportForm] = useState(false);
+  const [showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm] = useState(false);
+  const [showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm] = useState(false);
 
   useEffect(() => {
-
     setOptionsData(null);
     if (formVisible && handbooksList.includes(tab)) {
       fetchData(`assets/handbooks/${tab}`, "get", null, setOptionsData);
@@ -213,10 +216,9 @@ const AssetsActions = ({ role, tab, data, setData }) => {
       return;
     }
     else {
-      fetchExportData("forms/invent", { type: tab, pks:pks}, null, null, "pdf", `${tab}_labels`);
+      fetchExportData("forms/invent", { type: tab, pks: pks }, null, null, "pdf", `${tab}_labels`);
     }
   };
-
 
   const ActionsButtons = () => {
     return (
@@ -281,6 +283,30 @@ const AssetsActions = ({ role, tab, data, setData }) => {
         <ActionsButtons />
       </div>
 
+      {
+        tab === "equipments" && (
+          <div className="d-flex gap-3 w-100 border-bottom py-3 px-3">
+            <MyButton
+              text="Акт возврата оборудования"
+              onClick={() => setShowEquipmentReportForm(true)}
+              style={{ width: "fit-content" }}
+            />
+            <MyButton
+              text="Акт приема неисправного оборудования"
+              onClick={() => setShowBrokenEquipmentReportForm(true)}
+              style={{ width: "fit-content" }}
+            />
+            <MyButton
+              text="Акт передачи оборудования во временное пользование"
+              onClick={() => setShowTemporaryEquipmentReportForm(true)}
+              style={{ width: "fit-content" }}
+            />
+          </div>
+
+        )
+      }
+
+
       {formVisible && (
         <div className="p-3 border rounded form-container">
           {<AssetFormGenerator
@@ -293,19 +319,25 @@ const AssetsActions = ({ role, tab, data, setData }) => {
         </div>
       )}
 
-      {importFormVisible && <div className="p-3 border rounded form-container">
-        {<ImportForm
-          tab={tab}
-          importAlert={importAlert}
-          setImportAlert={setImportAlert}
-          importAlertType={importAlertType}
-          setImportAlertType={setImportAlertType}
-          handleImportSubmit={handleImportSubmit}
-          handleFileChange={handleFileChange}
-          toggleImportFormVisibility={toggleImportFormVisibility}
-          visible={importFormVisible}
-        />}
-      </div>}
+      {importFormVisible && (
+        <div className="p-3 border rounded form-container">
+          {<ImportForm
+            tab={tab}
+            importAlert={importAlert}
+            setImportAlert={setImportAlert}
+            importAlertType={importAlertType}
+            setImportAlertType={setImportAlertType}
+            handleImportSubmit={handleImportSubmit}
+            handleFileChange={handleFileChange}
+            toggleImportFormVisibility={toggleImportFormVisibility}
+            visible={importFormVisible}
+          />}
+        </div>
+      )}
+
+      {EquimpentReportForm({ showEquipmentReportForm, setShowEquipmentReportForm, data })}
+      {BrokenEquipmentReportForm({ showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm, data })}
+      {TemporaryEquipmentReportForm({ showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm, data })}
     </>
   );
 };
