@@ -4,19 +4,20 @@ FROM python:3.10
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app/src
 
-# Устанавливаем зависимости системы, включая поддержку локалей
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
     apt-utils \
     netcat-openbsd \
     locales \
     && rm -rf /var/lib/apt/lists/*
 
-# Генерируем и проверяем локаль ru_RU.UTF-8
+# Генерируем локаль ru_RU.UTF-8 и устанавливаем по умолчанию
 RUN echo "ru_RU.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen && \
+    dpkg-reconfigure -f noninteractive locales && \
     update-locale LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8
 
-# Устанавливаем переменные окружения, чтобы локаль применялась внутри контейнера
+# Устанавливаем переменные окружения для использования русской локали
 ENV LANG=ru_RU.UTF-8 \
     LC_ALL=ru_RU.UTF-8
 
