@@ -22,6 +22,7 @@ from .models import (
     HandbookConsumables,
     HandbookEquipments,
     HandbookPrograms,
+    HandbookCompany
 )
 from assets.serializers import (
     CustomAssetDetailsSerializer,
@@ -37,6 +38,7 @@ from assets.serializers import (
     HandbookConsumablesSerializer,
     HandbookEquipmentsSerializer,
     HandbookProgramsSerializer,
+    HandbookCompanySerializer,
 )
 from accounts.serializers import UserSerializer
 from accounts.models import User
@@ -53,11 +55,21 @@ model_mapping = {
     "programs": Programs,
 }
 
+serializer_mapping = {
+    "equipments": EquipmentsSerializer,
+    "movements": MovementsSerializer,
+    "repairs": RepairsSerializer,
+    "components": ComponentsSerializer,
+    "consumables": ConsumablesSerializer,
+    "programs": ProgramsSerializer,
+}
+
 handbook_mapping = {
     "components": HandbookComponents,
     "consumables": HandbookConsumables,
     "equipments": HandbookEquipments,
     "programs": HandbookPrograms,
+    "company": HandbookCompany,
 }
 
 handbook_serializer_mapping = {
@@ -65,10 +77,124 @@ handbook_serializer_mapping = {
     "consumables": HandbookConsumablesSerializer,
     "equipments": HandbookEquipmentsSerializer,
     "programs": HandbookProgramsSerializer,
+    "company": HandbookCompanySerializer,
 }
 
+fields_mapping = {
+    "equipments": [
+        "id",
+        "Компания",
+        "Местоположение",
+        "Статус",
+        "Производитель",
+        "Тип",
+        "Модель",
+        "Серийный_Номер",
+        "Инв_Номер_Бухгалтерии",
+        "Стоимость",
+        "Сотрудник",
+        "Сотрудник_Компания",
+        "Сотрудник_Подразделение",
+        "Сотрудник_Офис",
+        "Сотрудник_Должность",
+        "Сотрудник_Телефон",
+        "Примечания",
+        "Дата_Изменения",
+        "Изменил",
+        "Гарантия_До",
+    ],
+    "programs": [
+        "id",
+        "Компания",
+        "Местоположение",
+        "Статус",
+        "Производитель",
+        "Название",
+        "Версия",
+        "Серийный_Номер",
+        "Инв_Номер_Бухгалтерии",
+        "Ключ_Продукта",
+        "Код_Активации",
+        "Количество_пользователей",
+        "Стоимость",
+        "Сотрудник",
+        "Сотрудник_Компания",
+        "Сотрудник_Подразделение",
+        "Сотрудник_Офис",
+        "Сотрудник_Должность",
+        "Сотрудник_Телефон",
+        "Примечания",
+        "Дата_Изменения",
+        "Изменил",
+        "Лиценизя_До",
+    ],
+    "components": [
+        "id",
+        "Компания",
+        "Местоположение",
+        "Статус",
+        "Производитель",
+        "Тип",
+        "Модель",
+        "Серийный_Номер",
+        "Инв_Номер_Бухгалтерии",
+        "Стоимость",
+        "Сотрудник",
+        "Сотрудник_Компания",
+        "Сотрудник_Подразделение",
+        "Сотрудник_Офис",
+        "Сотрудник_Должность",
+        "Сотрудник_Телефон",
+        "Примечания",
+        "Дата_Изменения",
+        "Изменил",
+        "Гарантия_До",
+    ],
+    "consumables": [
+        "id",
+        "Компания",
+        "Местоположение",
+        "Статус",
+        "Производитель",
+        "Тип",
+        "Модель",
+        "Серийный_Номер",
+        "Инв_Номер_Бухгалтерии",
+        "Стоимость",
+        "Сотрудник",
+        "Сотрудник_Компания",
+        "Сотрудник_Подразделение",
+        "Сотрудник_Офис",
+        "Сотрудник_Должность",
+        "Сотрудник_Телефон",
+        "Примечания",
+        "Дата_Изменения",
+        "Изменил",
+    ],
+    "repairs": [
+        "id",
+        "Сотрудник",
+        "Дата_Поломки",
+        "Дата_Отправки",
+        "Дата_Возврата",
+        "Описание_Неисправности",
+        "Ремонт_Сервисная_Организация",
+        "Ремонт_Стоимость",
+        "Создал",
+        "Отправил",
+        "Принял",
+        "Ремонт_Дата_Изменения",
+        "Ремонт_Изменил",
+        "Вид_Учётных_Единиц",
+        "ID_Объекта",
+        "Подразделение",
+        "Сервисная_Организация",
+    ],
+}
 
 # base view
+
+
 class BaseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -83,7 +209,6 @@ class BaseViewSet(viewsets.ModelViewSet):
         )
 
     def update(self, request, *args, **kwargs):
-        print(request.data)
         if request.user.Роль != "admin":
             raise PermissionDenied("Вы не можете редактировать записи.")
 
@@ -277,7 +402,8 @@ class AssetsListView(APIView):
             id__in=custom_assets_detail.values_list("Актив", flat=True)
         )
 
-        custom_assets_data = CustomAssetSerializer(custom_assets, many=True).data
+        custom_assets_data = CustomAssetSerializer(
+            custom_assets, many=True).data
         custom_assets_detail_data = CustomAssetDetailsSerializer(
             custom_assets_detail, many=True
         ).data
@@ -309,26 +435,33 @@ class AssetsListView(APIView):
                 "programs": HandbookProgramsSerializer(HandbookPrograms.objects.all(), many=True).data,
                 "components": HandbookComponentsSerializer(HandbookComponents.objects.all(), many=True).data,
                 "consumables": HandbookConsumablesSerializer(HandbookConsumables.objects.all(), many=True).data,
+                "company": HandbookCompanySerializer(HandbookCompany.objects.all(), many=True).data,
             }
-
         return Response(data, status=status.HTTP_200_OK)
-    
+
 # utils for convert and download .csv
-def export_assets_to_csv(file_path, model_name):
+
+
+def export_assets_to_csv(file_path, model_name, pks=None):
     model = model_mapping.get(model_name.lower())
-    if model:
-        data = model.objects.all()
+    field_names = fields_mapping.get(model_name.lower())
+
+    if model and field_names:
+        if pks and len(pks) > 0:
+            data = model.objects.filter(pk__in=pks)
+        else:
+            data = model.objects.all()
 
         if not data.exists():
             return f"В '{model_name}' нет данных."
 
         with open(file_path, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            field_names = [field.name for field in model._meta.fields]
+            # Записываем заголовки из fields_mapping
             writer.writerow(field_names)
 
             for item in data:
-                writer.writerow([getattr(item, field)
+                writer.writerow([getattr(item, field, "")
                                 for field in field_names])
 
         return file_path
@@ -340,20 +473,20 @@ def export_assets_to_csv(file_path, model_name):
             return f"'{model_name}' не существует."
 
         custom_assets_details = CustomAssetDetails.objects.filter(
-            Актив__in=custom_assets
-        )
+            Актив__in=custom_assets)
 
         if not custom_assets_details.exists():
             return f"В '{model_name}' нет данных."
 
+        field_names = fields_mapping.get(
+            "custom_assets", [field.name for field in CustomAssetDetails._meta.fields])
+
         with open(file_path, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            field_names = [
-                field.name for field in CustomAssetDetails._meta.fields]
             writer.writerow(field_names)
 
             for item in custom_assets_details:
-                writer.writerow([getattr(item, field)
+                writer.writerow([getattr(item, field, "")
                                 for field in field_names])
 
         return file_path
@@ -374,6 +507,7 @@ def send_file_to_user(file_path, filename):
 class ImportDBView(APIView):
     def post(self, request, *args, **kwargs):
         model_name = request.data.get("name")
+        pks = request.data.get("pks")
 
         if not model_name:
             return Response({"error": "Название актива не указано."}, status=400)
@@ -382,7 +516,7 @@ class ImportDBView(APIView):
             settings.MEDIA_ROOT, "databases", f"{model_name}.csv")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-        exported_file_path = export_assets_to_csv(file_path, model_name)
+        exported_file_path = export_assets_to_csv(file_path, model_name, pks)
 
         if isinstance(exported_file_path, str) and exported_file_path.endswith(".csv"):
             try:
@@ -582,36 +716,53 @@ class ExportDBView(APIView):
 
 class HandbookView(APIView):
     def get(self, request, asset, pk=None):
+        if asset != 'users':
+            model = handbook_mapping.get(asset)
 
-        model = handbook_mapping.get(asset)
-        if not model:
-            return Response({"error": "Такого справочника не существует."}, status=400)
+            if not model:
+                return Response({"error": "Такого справочника не существует."}, status=400)
 
-        if not pk:
-            queryset = model.objects.all()
+            if not pk:
+                queryset = model.objects.all()
+            else:
+                queryset = model.objects.filter(pk=pk)
+                if not queryset.exists():
+                    return Response({"error": "Запись не найдена."}, status=404)
+
+            serializer_class = handbook_serializer_mapping.get(asset)
+            if not serializer_class:
+                return Response({"error": "Нет подходящего сериализатора."}, status=400)
+
+            serializer = serializer_class(queryset, many=True)
+
+            # Используем defaultdict(set) для сбора уникальных значений
+            result = defaultdict(set)
+            for item in serializer.data:
+                for key, value in item.items():
+                    if value:
+                        result[key].add(value)
+
+            # Получаем данные из HandbookCompany
+            company_queryset = HandbookCompany.objects.all()
+            company_serializer = HandbookCompanySerializer(
+                company_queryset, many=True)
+
+            # Добавляем данные из HandbookCompany в result
+            for item in company_serializer.data:
+                for key, value in item.items():
+                    if value:
+                        result[key].add(value)
+
+            # Преобразуем множества в списки
+            result = {key: list(value) for key, value in result.items()}
         else:
-            queryset = model.objects.filter(pk=pk)
-            if not queryset.exists():
-                return Response({"error": "Запись не найдена."}, status=404)
-
-        serializer_class = handbook_serializer_mapping.get(asset)
-        if not serializer_class:
-            return Response({"error": "Нет подходящего сериализатора."}, status=400)
-
-        serializer = serializer_class(queryset, many=True)
-
-        result = defaultdict(set)
-        for item in serializer.data:
-            for key, value in item.items():
-                if value:
-                    result[key].add(value)
-
-        result = {key: list(value) for key, value in result.items()}
-
+            result = {
+                'Роль': ['admin', 'manager', 'user'],
+                'Организация': [item['Компания'] for item in HandbookCompany.objects.all().values()]
+            }
         return Response(result, status=status.HTTP_200_OK)
 
     def post(self, request, asset):
-
         data = request.data
         model = handbook_mapping.get(asset)
         serializer_class = handbook_serializer_mapping.get(asset)

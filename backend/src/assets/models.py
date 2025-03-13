@@ -275,53 +275,85 @@ class ExportFile(models.Model):
 # handbooks
 
 
-class HandbookEquipments(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAssetTMPN):
+class HandbookEquipments(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
     Серисная_Организация = models.CharField(max_length=255, blank=True, null=True)
     Диагональ = models.FloatField(blank=True, null=True)
     Количество_Мегапикселей = models.FloatField(blank=True, null=True)
     Количество_портов = models.IntegerField(blank=True, null=True)
-    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+    Стоимость_с_содержимым = models.FloatField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Содержимое = models.CharField(max_length=255, blank=True, null=True)
+    Инвентарный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Тип_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Модель_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Гарантия_До = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return ''
+        return self.Название if self.Название else 'Название не указано'
 
 
-class HandbookPrograms(BaseAssetA, BaseAssetB, BaseAssetC):
+class HandbookPrograms(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
     Версия = models.CharField(max_length=255, blank=True, null=True)
     Ключ_Продукта = models.CharField(max_length=255, blank=True, null=True)
     Код_Активации = models.CharField(max_length=255, blank=True, null=True)
     Дистрибутив = models.CharField(max_length=255, blank=True, null=True)
-    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+    Номер_Мульти_Лицензии = models.CharField(max_length=255, blank=True, null=True)
+    Количество_Мульти_Лицензий = models.IntegerField(blank=True, null=True)
+    Лиценизя_До = models.DateField(blank=True, null=True)
+    Количество_пользователей = models.IntegerField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Инвентарный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return ''
-    
-    
-class HandbookComponents(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAssetTMPN):
+        return self.Название if self.Название else 'Название не указано'
+
+
+class HandbookComponents(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
-    Серийный_Номер_Связанного_Объекта = models.CharField(
-        max_length=255, blank=True, null=True
-    )
-    Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(
-        max_length=255, blank=True, null=True
-    )
+    Серийный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Стоимость = models.FloatField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Гарантия_До = models.DateField(blank=True, null=True)
+    Тип = models.CharField(max_length=255, blank=True, null=True)
+    Модель = models.CharField(max_length=255, blank=True, null=True)
+    Номер_Партии = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return ''
-    
-    
-class HandbookConsumables(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetTMPN):
+        return self.Название if self.Название else 'Название не указано'
+
+
+class HandbookConsumables(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
     Количество = models.IntegerField(blank=True, null=True)
     Сумма = models.FloatField(blank=True, null=True)
-    Серийный_Номер_Связанного_Объекта = models.CharField(
-        max_length=255, blank=True, null=True
-    )
-    Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(
-        max_length=255, blank=True, null=True
-    )
-    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+    Серийный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
+    Стоимость = models.FloatField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Тип = models.CharField(max_length=255, blank=True, null=True)
+    Модель = models.CharField(max_length=255, blank=True, null=True)
+    Номер_Партии = models.CharField(max_length=255, blank=True, null=True)
+
     def __str__(self):
-        return ''
+        return self.Название if self.Название else 'Название не указано'
+
+
+class HandbookCompany(models.Model):
+    Компания = models.CharField(max_length=255, blank=True, null=True)
+    Местоположение = models.CharField(max_length=255, blank=True, null=True)
+    Статус = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник_Компания = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник_Подразделение = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник_Офис = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник_Должность = models.CharField(max_length=255, blank=True, null=True)
+    Сотрудник_Телефон = models.CharField(max_length=255, blank=True, null=True)
+    Стоимость = models.FloatField(blank=True, null=True)
+    Описание = models.CharField(max_length=255, blank=True, null=True)
+    Поставщик = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.Компания if self.Компания else 'Компания не указана'

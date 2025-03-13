@@ -8,6 +8,7 @@ const tabsNamesMap = {
     "Программы": "programs",
     "Комплектующие": "components",
     "Расходники": "consumables",
+    "Компании": "company",
 }
 
 const tabs = Object.keys(tabsNamesMap);
@@ -17,7 +18,7 @@ const HandbooksTabs = ({ data, sync, role }) => {
     const [addFormVisible, setAddFormVisible] = useState(false);
 
     const tabData = data[tabsNamesMap[activeTab]];
-
+    console.log(tabData);
     return (
         <div>
             <nav className="border-bottom">
@@ -46,6 +47,7 @@ const HandbooksTabs = ({ data, sync, role }) => {
                             title={`Добавление Справочника ${activeTab}`}
                             asset={tabsNamesMap[activeTab]}
                             endPoint={`assets/handbooks/${tabsNamesMap[activeTab]}`}
+                            isHandbook={true}
                         />
                     </div>
 

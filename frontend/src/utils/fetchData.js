@@ -1,7 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_URL = "http://77.95.201.66:8000/api/";
+const API_URL = "http://127.0.0.1:8000/api/";
+// const API_URL = "http://77.95.201.66:8000/api/";
 
 export const refreshTokens = async () => {
 	const refresh = Cookies.get("refresh");
@@ -115,7 +116,7 @@ export const fetchImportData = async (url, file, modelName, setFetchError = null
 	}
 };
 
-export const fetchExportData = async (url, data = null, setFetchError = null, setFetchSuccess = null) => {
+export const fetchExportData = async (url, data = null, setFetchError = null, setFetchSuccess = null, fileType = 'csv', name='export') => {
 	let access = Cookies.get("access");
 
 	try {
@@ -133,11 +134,12 @@ export const fetchExportData = async (url, data = null, setFetchError = null, se
 		console.log("Успех:", response.data);
 
 		if (response.status === 200) {
-			// Создаем ссылку для скачивания
 			const link = document.createElement("a");
-			link.href = URL.createObjectURL(response.data); // Создаем URL для скачивания
-			link.download = `${data.name}_export.csv`; // Имя файла для скачивания
-			link.click(); // Имитируем клик для начала скачивания
+			let fileName = data.name || name;
+			
+			link.href = URL.createObjectURL(response.data);
+			link.download = `${fileName}.${fileType}`;
+			link.click();
 
 			setFetchSuccess?.("Данные успешно экспортированы!");
 			alert("Данные успешно экспортированы!");
@@ -169,6 +171,24 @@ export const fetchForm = async (url, method, data = null) => {
 				"Content-Type": "application/json",
 			},
 		});
+
+		if (response.data["user"]) {
+			localStorage.setItem("user", JSON.stringify(response.data["user"]));
+		}
+
+		if (response.data.access && response.data.refresh) {
+			Cookies.set("access", response.data.access, {
+				expires: 15 / 1440,
+				// secure: true,
+				sameSite: "Lax",
+			});
+			Cookies.set("refresh", response.data.refresh, {
+				expires: 30,
+				// secure: true,
+				sameSite: "Lax",
+			});
+			window.location.reload();
+		}
 
 		console.log("Успех:", response.data);
 		return { status: response.status, data: response.data }; // ✅ Возвращаем статус и JSON

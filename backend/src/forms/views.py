@@ -35,7 +35,7 @@ class InventoryLabelPdfView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         asset_type = data.get("type")
-        asset_ids = data.get("ids")
+        asset_ids = data.get("pks")
 
         if not asset_type or not asset_ids:
             return Response({"error": "type and ids are required"}, status=400)

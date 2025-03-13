@@ -10,7 +10,7 @@ import { translateAssets } from "../../utils/assets";
 import ImportForm from "../../components/UI/Forms/ImportForm";
 import Cookies from "js-cookie";
 
-const handbooksList = ["equipments", "programs", "components", "consumables"]
+const handbooksList = ["equipments", "programs", "components", "consumables", "users"];
 
 const ChangePassForm = ({ setShowChangePassForm }) => {
   const [oldPassword, setOldPassword] = useState("");
@@ -98,6 +98,14 @@ const ChangePassForm = ({ setShowChangePassForm }) => {
   );
 };
 
+const FormEndpointsMap = {
+  equipments: "assets/equipments",
+  programs: "assets/programs",
+  components: "assets/components",
+  consumables: "assets/consumables",
+  users: "auth/users/create",
+
+}
 
 const AssetsActions = ({ role, tab, data, setData }) => {
   const [formVisible, setFormVisible] = useState(false);
@@ -119,7 +127,15 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     , [formVisible, setOptionsData, tab]);
 
   const exportData = () => {
-    fetchExportData("assets/import", { name: tab });
+    const pks = [];
+    const selectInputs = document.querySelectorAll(`[data-export-select-asset="${tab}"]`);
+    selectInputs?.forEach((input) => {
+      if (input.checked) {
+        pks.push(input.getAttribute("data-export-select"));
+      }
+    });
+
+    fetchExportData("assets/import", { name: tab, pks: pks });
   };
 
   const toggleFormVisibility = () => {
@@ -167,14 +183,12 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     try {
       await fetchData("auth/logout", "post", { refresh_token: Cookies.get("refresh") });
 
-      // Полное удаление токенов
       localStorage.removeItem("user");
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       Cookies.remove("access");
       Cookies.remove("refresh");
 
-      // Перенаправляем на страницу логина
       window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
@@ -185,11 +199,29 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     setShowChangePassForm(true);
   };
 
+  const handleGeneratePdfLabels = () => {
+    const inputs = document.querySelectorAll(`[data-export-select-asset="${tab}"]`);
+    const pks = [];
+    inputs.forEach((input) => {
+      if (input.checked) {
+        pks.push(input.getAttribute("data-export-select"));
+      }
+    });
+
+    if (pks.length === 0) {
+      alert("Выберите хотя бы один элемент!");
+      return;
+    }
+    else {
+      fetchExportData("forms/invent", { type: tab, pks:pks}, null, null, "pdf", `${tab}_labels`);
+    }
+  };
+
 
   const ActionsButtons = () => {
     return (
-      <div className="d-flex gap-3 align-items-center" style={{ width: "100%", justifyContent: "space-between" }}>
-        <div className="d-flex gap-3">
+      <div className="d-flex gap-3 align-items-center flex-wrap" style={{ width: "100%", justifyContent: "space-between" }}>
+        <div className="d-flex gap-3 flex-wrap">
           <MyButton
             text="Обновить данные"
             onClick={() => {
@@ -215,6 +247,11 @@ const AssetsActions = ({ role, tab, data, setData }) => {
               <MyButton
                 text="Экспортировать CSV"
                 onClick={exportData}
+                style={{ width: "fit-content" }}
+              />
+              <MyButton
+                text="Сгенерировать Ярлыки"
+                onClick={handleGeneratePdfLabels}
                 style={{ width: "fit-content" }}
               />
             </>
@@ -251,7 +288,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
             options={optionsData}
             asset={tab}
             title={`Добавить ${translateAssets(tab)}`}
-            endPoint={`assets/${tab}`}
+            endPoint={FormEndpointsMap[tab]}
           />}
         </div>
       )}

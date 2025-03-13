@@ -14,6 +14,7 @@ from .models import (
     HandbookConsumables,
     HandbookEquipments,
     HandbookPrograms,
+    HandbookCompany
 )
 
 
@@ -37,6 +38,7 @@ class BaseSerializer(serializers.ModelSerializer):
 
 
 # standart assets
+
 class EquipmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipments
@@ -62,6 +64,7 @@ class EquipmentsSerializer(serializers.ModelSerializer):
             "Изменил",
             "Гарантия_До",
         ]
+
 
 class ProgramsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -91,6 +94,7 @@ class ProgramsSerializer(serializers.ModelSerializer):
             "Изменил",
             "Лиценизя_До",
         ]
+
 
 class ComponentsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -202,106 +206,95 @@ class ExportFileSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class HandbookComponentsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HandbookComponents
-        fields = [
-            "id",
-            "Компания",
-            "Местоположение",
-            "Статус",
-            "Производитель",
-            "Серийный_Номер",
-            "Инв_Номер_Бухгалтерии",
-            "Стоимость",
-            "Сотрудник",
-            "Сотрудник_Компания",
-            "Сотрудник_Подразделение",
-            "Сотрудник_Офис",
-            "Сотрудник_Должность",
-            "Сотрудник_Телефон",
-            "Примечания",
-            "Дата_Изменения",
-            "Изменил",
-        ]
-
-class HandbookConsumablesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HandbookConsumables
-        fields = [
-            "id",
-            "Компания",
-            "Местоположение",
-            "Статус",
-            "Производитель",
-            "Серийный_Номер",
-            "Инв_Номер_Бухгалтерии",
-            "Стоимость",
-            "Сотрудник",
-            "Сотрудник_Компания",
-            "Сотрудник_Подразделение",
-            "Сотрудник_Офис",
-            "Сотрудник_Должность",
-            "Сотрудник_Телефон",
-            "Примечания",
-            "Дата_Изменения",
-            "Изменил",
-        ]
-
-        
-
 class HandbookEquipmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = HandbookEquipments
         fields = [
             "id",
-            "Компания",
-            "Местоположение",
-            "Статус",
-            "Тип",
-            "Модель",
-            "Производитель",
-            "Серийный_Номер",
-            "Инв_Номер_Бухгалтерии",
-            "Стоимость",
-            "Сотрудник",
-            "Сотрудник_Компания",
-            "Сотрудник_Подразделение",
-            "Сотрудник_Офис",
-            "Сотрудник_Должность",
-            "Сотрудник_Телефон",
-            "Примечания",
-            "Дата_Изменения",
-            "Изменил",
-        
+            "Название",
+            "Серисная_Организация",
+            "Диагональ",
+            "Количество_Мегапикселей",
+            "Количество_портов",
+            "Стоимость_с_содержимым",
+            "Дата_Инвертаризации",
+            "Содержимое",
+            "Инвентарный_Номер_Связанного_Объекта",
+            "Тип_Связанного_Объекта",
+            "Модель_Связанного_Объекта",
+            "Гарантия_До"
         ]
 
-        
 
 class HandbookProgramsSerializer(serializers.ModelSerializer):
     class Meta:
         model = HandbookPrograms
         fields = [
             "id",
+            "Название",
+            "Версия",
+            "Ключ_Продукта",
+            "Код_Активации",
+            "Дистрибутив",
+            "Номер_Мульти_Лицензии",
+            "Количество_Мульти_Лицензий",
+            "Лиценизя_До",
+            "Количество_пользователей",
+            "Дата_Инвертаризации",
+            "Инвентарный_Номер_Связанного_Объекта"
+        ]
+
+
+class HandbookComponentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HandbookComponents
+        fields = [
+            "id",
+            "Название",
+            "Серийный_Номер_Связанного_Объекта",
+            "Инв_Номер_Бухгалтерии_Связанного_Объекта",
+            "Стоимость",
+            "Дата_Инвертаризации",
+            "Гарантия_До",
+            "Тип",
+            "Модель",
+            "Номер_Партии"
+        ]
+
+
+class HandbookConsumablesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HandbookConsumables
+        fields = [
+            "id",
+            "Название",
+            "Количество",
+            "Сумма",
+            "Серийный_Номер_Связанного_Объекта",
+            "Инв_Номер_Бухгалтерии_Связанного_Объекта",
+            "Стоимость",
+            "Дата_Инвертаризации",
+            "Тип",
+            "Модель",
+            "Номер_Партии"
+        ]
+
+
+class HandbookCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HandbookCompany
+        fields = [
+            "id",
             "Компания",
             "Местоположение",
             "Статус",
-            "Производитель",
-            "Версия",
-            "Серийный_Номер",
-            "Инв_Номер_Бухгалтерии",
-            "Ключ_Продукта",
-            "Код_Активации",
-            "Стоимость",
             "Сотрудник",
             "Сотрудник_Компания",
             "Сотрудник_Подразделение",
             "Сотрудник_Офис",
             "Сотрудник_Должность",
             "Сотрудник_Телефон",
-            "Примечания",
-            "Дата_Изменения",
-            "Изменил",
+            "Стоимость",
+            "Описание",
+            "Поставщик"
         ]
-
-        

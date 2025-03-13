@@ -6,7 +6,7 @@ import Loader from "../Loader/Loader";
 import "./Form.css";
 
 
-const fieldsMap = {
+const baseFieldsMap = {
     equipments: {
         admin: [
             "Компания",
@@ -262,8 +262,149 @@ const fieldsMap = {
             "Телефон"
         ]
     }
-
 }
+
+const handbookFieldsMap = {
+    equipments: {
+        admin: [
+            "Название",
+            "Серисная_Организация",
+            "Диагональ",
+            "Количество_Мегапикселей",
+            "Количество_портов",
+            "Стоимость_с_содержимым",
+            "Дата_Инвертаризации",
+            "Содержимое",
+            "Инвентарный_Номер_Связанного_Объекта",
+            "Тип_Связанного_Объекта",
+            "Модель_Связанного_Объекта",
+            "Гарантия_До"
+        ],
+        standard: [
+            "Название",
+            "Серисная_Организация",
+            "Диагональ",
+            "Количество_Мегапикселей",
+            "Количество_портов",
+            "Стоимость_с_содержимым",
+            "Дата_Инвертаризации",
+            "Содержимое",
+            "Инвентарный_Номер_Связанного_Объекта",
+            "Тип_Связанного_Объекта",
+            "Модель_Связанного_Объекта",
+            "Гарантия_До"
+        ]
+    },
+    programs: {
+        admin: [
+            "Название",
+            "Версия",
+            "Ключ_Продукта",
+            "Код_Активации",
+            "Дистрибутив",
+            "Номер_Мульти_Лицензии",
+            "Количество_Мульти_Лицензий",
+            "Лиценизя_До",
+            "Количество_пользователей",
+            "Дата_Инвертаризации",
+            "Инвентарный_Номер_Связанного_Объекта"
+        ],
+        standard: [
+            "Название",
+            "Версия",
+            "Ключ_Продукта",
+            "Код_Активации",
+            "Дистрибутив",
+            "Номер_Мульти_Лицензии",
+            "Количество_Мульти_Лицензий",
+            "Лиценизя_До",
+            "Количество_пользователей",
+            "Дата_Инвертаризации",
+            "Инвентарный_Номер_Связанного_Объекта"
+        ]
+    },
+    components: {
+        admin: [
+            "Название",
+            "Серийный_Номер_Связанного_Объекта",
+            "Инв_Номер_Бухгалтерии_Связанного_Объекта",
+            "Стоимость",
+            "Дата_Инвертаризации",
+            "Гарантия_До",
+            "Тип",
+            "Модель",
+            "Номер_Партии"
+        ],
+        standard: [
+            "Название",
+            "Серийный_Номер_Связанного_Объекта",
+            "Инв_Номер_Бухгалтерии_Связанного_Объекта",
+            "Стоимость",
+            "Дата_Инвертаризации",
+            "Гарантия_До",
+            "Тип",
+            "Модель",
+            "Номер_Партии"
+        ]
+    },
+    consumables: {
+        admin: [
+            "Название",
+            "Количество",
+            "Сумма",
+            "Серийный_Номер_Связанного_Объекта",
+            "Инв_Номер_Бухгалтерии_Связанного_Объекта",
+            "Стоимость",
+            "Дата_Инвертаризации",
+            "Тип",
+            "Модель",
+            "Номер_Партии"
+        ],
+        standard: [
+            "Название",
+            "Количество",
+            "Сумма",
+            "Серийный_Номер_Связанного_Объекта",
+            "Инв_Номер_Бухгалтерии_Связанного_Объекта",
+            "Стоимость",
+            "Дата_Инвертаризации",
+            "Тип",
+            "Модель",
+            "Номер_Партии"
+        ]
+    },
+    company: {
+        admin: [
+            "Компания",
+            "Местоположение",
+            "Статус",
+            "Сотрудник",
+            "Сотрудник_Компания",
+            "Сотрудник_Подразделение",
+            "Сотрудник_Офис",
+            "Сотрудник_Должность",
+            "Сотрудник_Телефон",
+            "Стоимость",
+            "Описание",
+            "Поставщик"
+        ],
+        standard: [
+            "Компания",
+            "Местоположение",
+            "Статус",
+            "Сотрудник",
+            "Сотрудник_Компания",
+            "Сотрудник_Подразделение",
+            "Сотрудник_Офис",
+            "Сотрудник_Должность",
+            "Сотрудник_Телефон",
+            "Стоимость",
+            "Описание",
+            "Поставщик"
+        ]
+    }
+};
+
 
 const fieldsTypesMap = {
     date: ["Гарантия_До", "Лиценизя_До", "Дата_Изменения", "Дата_Отправки", "Дата_Возврата", "Дата_Поломки", "Дата_Получения", "Ремонт_Дата_Изменения"],
@@ -281,12 +422,14 @@ const fieldsTypesMap = {
     ]
 }
 
-const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, method = 'post', continueButtonText = 'Добавить' }) => {
+const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, method = 'post', continueButtonText = 'Добавить', isHandbook = false }) => {
     const [formData, setFormData] = useState({});
     const [alertMessage, setAlertMessage] = useState(null);
     const [alertStatus, setAlertStatus] = useState("");
     const [userRole, setUserRole] = useState(null);
     const [formFields, setFormFields] = useState([]);
+
+    const fieldsMap = isHandbook ? handbookFieldsMap : baseFieldsMap;
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -302,7 +445,7 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
 
     useEffect(() => {
         setFormFields(userRole === "admin" ? fieldsMap[asset]['admin'] : fieldsMap[asset]['standard']);
-    }, [userRole, asset]);
+    }, [userRole, asset, fieldsMap]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -325,7 +468,6 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
 
     const handleSubmit = async () => {
         try {
-            console.log(formData);
             const { status, data } = await fetchForm(endPoint, method, formData);
             if (status >= 200 && status < 300) {
                 setAlertMessage("✅ Запись успешно добавлена!");
@@ -372,8 +514,8 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
             <form onSubmit={(e) => e.preventDefault()} className="formObject" action={endPoint}>
                 <div className="d-flex gap-2 w-100 justify-content-between">
                     <div className="d-flex gap-2">
-                    <MyButton text={continueButtonText} onClick={handleSubmit} style={{ width: "fit-content" }} />
-                    <MyButton text="Отмена" onClick={onClose} style={{ width: "fit-content" }} />
+                        <MyButton text={continueButtonText} onClick={handleSubmit} style={{ width: "fit-content" }} />
+                        <MyButton text="Отмена" onClick={onClose} style={{ width: "fit-content" }} />
                     </div>
                     {data && (
                         <MyButton text="Удалить" onClick={() => {

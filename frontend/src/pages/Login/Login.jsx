@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchData } from "../../utils/fetchData";
+import { fetchForm } from "../../utils/fetchData";
 
 import MyInput from "../../components/UI/Input/MyInput";
 import MyButton from "../../components/UI/Button/MyButton";
@@ -9,6 +9,7 @@ import cls from "./Login.module.css";
 
 const Login = () => {
 	const [values, setValues] = useState({});
+	const [alert, setAlert] = useState(null);
 
 	const handleChange = (event, field) => {
 		setValues((prevValues) => ({
@@ -17,9 +18,27 @@ const Login = () => {
 		}));
 	};
 
+	const handleLogin = () => {
+
+		if (!values.username || !values.password) {
+			setAlert("Поле логин и пароль обязательны для заполнения!");
+			return;
+		}
+
+		else {
+			fetchForm("auth/login", "post", values).then((response) => {
+				if (response.status !== 200) {
+					setAlert(response.data.message || response.data.detail || 'Логин или пароль неверны!');
+				}
+			});
+	
+		}
+	};
+
 	return (
 		<div className={cls.login}>
-			<div className={classes.fields}>
+			<div className={classes.fields} style={{ width: "320px" }}>
+				{alert && <div className={`alertBox error w-100`}>{alert}</div>}
 				<h1 className={classes.title}>Вход</h1>
 
 				<MyInput
@@ -37,7 +56,7 @@ const Login = () => {
 
 				<MyButton
 					text="Войти"
-					onClick={() => fetchData("auth/login", "post", values)}
+					onClick={() => handleLogin()}
 				/>
 			</div>
 		</div>

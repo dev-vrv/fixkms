@@ -5,7 +5,7 @@ import { translateAssets } from "../../../utils/assets";
 import { fetchData, fetchForm } from "../../../utils/fetchData";
 import AssetFormGenerator from "../Forms/AssetFormGenerator";
 
-const handbooksList = ["equipments", "programs", "components", "consumables"]
+const handbooksList = ["equipments", "programs", "components", "consumables", "users"];
 
 const SearchComponent = ({ search, setSearch }) => {
 	return (
@@ -175,6 +175,7 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 				<thead>
 					<tr>
 						{role !== 'user' && <th>Действие</th>}
+						{!isHandbook && tab !== 'users' && <th>Выбрать</th>}
 						{Object.keys(fullData[0]).map((cell) => (
 							<th key={cell}>{cell === 'username' ? 'Логин' : cell === 'date_joined' ? 'Дата регистрации' : cell === 'email' ? 'Почта' : cell.replace(/_/g, " ")}</th>
 						))}
@@ -190,6 +191,11 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 										style={{ width: "100%", cursor: "pointer" }}
 										onClick={() => handleEditClick(row)}
 									/>
+								</td>
+							)}
+							{!isHandbook && tab !== 'users' && (
+								<td className="text-center">
+									<input type="checkbox" data-export-select={row.id} data-export-select-asset={tab} />
 								</td>
 							)}
 							{Object.keys(fullData[0]).map((cell) => (
@@ -227,6 +233,7 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 					options={!isHandbook ? optionsData : null}
 					method="put"
 					continueButtonText="Сохранить изменения"
+					isHandbook={isHandbook}
 				/>
 			</div>
 		)
