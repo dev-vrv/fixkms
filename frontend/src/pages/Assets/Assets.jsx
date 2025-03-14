@@ -323,7 +323,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
                       className="btn-link"
                     />
                     <MyButton
-                      text="Сгенерировать инвентаризационные ярлыки"
+                      text="Сгенерировать инвентаризационные этикетки"
                       onClick={handleGeneratePdfLabels}
                       style={{ width: "fit-content" }}
                       className="btn-link"
