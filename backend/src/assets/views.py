@@ -776,6 +776,7 @@ class HandbookView(APIView):
             # Преобразуем множества в списки
             result = {key: list(value) for key, value in result.items()}
             if request.user.Роль == "manager":
+                users = User.objects.filter(Организация=request.user.Организация)
                 result['Сотрудник_Компания'] = [request.user.Организация]
                 result['Сотрудник'] = [request.user.username]
                 result['Сотрудник_Логин'] = [request.user.username]

@@ -22,6 +22,7 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
         setOptionsData(null);
         fetchForm(`assets/handbooks/equipments`, "get", null, null).then(response => {
             setOptionsData(response.data);
+            console.log(response.data);
         });
     }
         , [setOptionsData]);
@@ -113,27 +114,41 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
             {/* Подписант 1 */}
             <div className="d-flex flex-column gap-2">
                 <label className="form-label">Подписант 1</label>
-                <input
-                    type="text"
+                <select
                     name="signer_1"
                     className="form-control"
                     value={formData.signer_1}
                     onChange={handleChange}
-                    placeholder="Введите ФИО подписанта 1"
-                />
+                >
+                    <option value="">Выберите компанию</option>
+                    {optionsData && optionsData.Сотрудник_Логин.map((signer, index) => {
+                        return (
+                            <option key={index} value={signer}>
+                                {signer}
+                            </option>
+                        )
+                    })}
+                </select>
             </div>
 
             {/* Подписант 2 */}
             <div className="d-flex flex-column gap-2">
                 <label className="form-label">Подписант 2</label>
-                <input
-                    type="text"
+                <select
                     name="signer_2"
                     className="form-control"
                     value={formData.signer_2}
                     onChange={handleChange}
-                    placeholder="Введите ФИО подписанта 2"
-                />
+                >
+                    <option value="">Выберите компанию</option>
+                    {optionsData && optionsData.Сотрудник_Логин.map((signer, index) => {
+                        return (
+                            <option key={index} value={signer}>
+                                {signer}
+                            </option>
+                        )
+                    })}
+                </select>
             </div>
 
             {/* Выбор оборудования */}

@@ -1,5 +1,6 @@
 .page {
 	display: flex;
+	min-height: 100vh;
 }
 
 .main {
@@ -8,6 +9,7 @@
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	flex: 1 1 auto;
 }
 
 .loader {

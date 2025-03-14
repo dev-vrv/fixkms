@@ -279,8 +279,10 @@ class BrokenEquipmentReportView(APIView):
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
             position_2 = data.get("position_2")
-            signer_1 = data.get("signer_1")
-            signer_2 = data.get("signer_2")
+            signer_1_object = User.objects.get(username=data.get("signer_1"))
+            signer_2_object = User.objects.get(username=data.get("signer_2"))
+            signer_1 = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
+            signer_2 = f'{signer_2_object.Фамилия} {signer_2_object.Имя} {signer_2_object.Отчество}'
             equipment_ids = data.get("equipment_ids", [])
             equipments = Equipments.objects.filter(id__in=equipment_ids)
 
@@ -415,8 +417,10 @@ class EquipmentReportView(APIView):
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
             position_2 = data.get("position_2")
-            signer_1 = data.get("signer_1")
-            signer_2 = data.get("signer_2")
+            signer_1_object = User.objects.get(username=data.get("signer_1"))
+            signer_2_object = User.objects.get(username=data.get("signer_2"))
+            signer_1 = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
+            signer_2 = f'{signer_2_object.Фамилия} {signer_2_object.Имя} {signer_2_object.Отчество}'
             equipment_data = data.get("equipment_ids", [])
 
             # Преобразуем id в числа
@@ -563,8 +567,10 @@ class TemporaryEquipmentReportView(APIView):
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
             position_2 = data.get("position_2")
-            signer_1 = data.get("signer_1")
-            signer_2 = data.get("signer_2")
+            signer_1_object = User.objects.get(username=data.get("signer_1"))
+            signer_2_object = User.objects.get(username=data.get("signer_2"))
+            signer_1 = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
+            signer_2 = f'{signer_2_object.Фамилия} {signer_2_object.Имя} {signer_2_object.Отчество}'
             equipment_data = data.get("equipment_ids", [])
 
             # Преобразование строковых ID в числовые
