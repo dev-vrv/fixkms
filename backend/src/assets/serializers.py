@@ -44,7 +44,7 @@ class EquipmentsSerializer(serializers.ModelSerializer):
         model = Equipments
         fields = [
             "id",
-            "Компания",
+            # "Компания",
             "Местоположение",
             "Статус",
             "Производитель",
@@ -71,7 +71,7 @@ class ProgramsSerializer(serializers.ModelSerializer):
         model = Programs
         fields = [
             "id",
-            "Компания",
+            # "Компания",
             "Местоположение",
             "Статус",
             "Производитель",
@@ -101,7 +101,7 @@ class ComponentsSerializer(serializers.ModelSerializer):
         model = Components
         fields = [
             "id",
-            "Компания",
+            # "Компания",
             "Местоположение",
             "Статус",
             "Производитель",
@@ -128,7 +128,7 @@ class ConsumablesSerializer(serializers.ModelSerializer):
         model = Consumables
         fields = [
             "id",
-            "Компания",
+            # "Компания",
             "Местоположение",
             "Статус",
             "Производитель",
