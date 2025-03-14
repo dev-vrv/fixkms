@@ -380,7 +380,7 @@ class BrokenEquipmentReportView(APIView):
 
         doc.add_paragraph("\n")
         doc.add_paragraph().add_run(
-            f"{signer_1}\t\t\t\t\t\t{signer_2}").font.size = Pt(9)
+            f"{signer_1}\t\t\t\t\t\t\t{signer_2}").font.size = Pt(9)
         doc.add_paragraph("_" * 30 + "\t\t\t\t" + "_" * 30)
         doc.add_paragraph("\t(подпись)\t\t\t\t\t\t\t(подпись)")
 
@@ -527,8 +527,8 @@ class EquipmentReportView(APIView):
             f"{position_1}\t\t\t\t\t\t\t{position_2}").font.size = Pt(9)
 
         doc.add_paragraph("\n")
-        doc.add_paragraph().add_run(
-            f"{signer_1}\t\t\t\t\t\t{signer_2}").font.size = Pt(9)
+        doc.add_paragraph().add_run().alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        doc.add_paragraph().add_run(f"{signer_1}\t\t\t\t\t\t\t{signer_2}").font.size = Pt(9)
         doc.add_paragraph("_" * 30 + "\t\t\t\t" + "_" * 30)
         doc.add_paragraph("\t(подпись)\t\t\t\t\t\t\t(подпись)")
 
@@ -688,7 +688,7 @@ class TemporaryEquipmentReportView(APIView):
 
         doc.add_paragraph("\n")
 
-        doc.add_paragraph().add_run(f"{signer_1}\t\t\t\t\t\t{signer_2}").font.size = Pt(
+        doc.add_paragraph().add_run(f"{signer_1}\t\t\t\t\t\t\t{signer_2}").font.size = Pt(
             9
         )
         doc.add_paragraph("_" * 30 + "\t\t\t\t" + "_" * 30)
