@@ -180,7 +180,16 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 				<thead>
 					<tr>
 						{role !== 'user' && <th>Действие</th>}
-						{!isHandbook && tab !== 'users' && <th>Выбрать</th>}
+						{!isHandbook && tab !== 'users' && (
+							<th className="text-center">
+								<input type="checkbox" onChange={(e) => {
+									const checkboxes = document.querySelectorAll(`input[data-export-select-asset=${tab}]`);
+									checkboxes.forEach((checkbox) => {
+										checkbox.checked = e.target.checked;
+									});
+								}} />
+							</th>
+						)}
 						{Object.keys(fullData[0]).map((cell) => (
 							<th key={cell}>{cell === 'username' ? 'Логин' : cell === 'date_joined' ? 'Дата регистрации' : cell === 'email' ? 'Почта' : cell.replace(/_/g, " ")}</th>
 						))}

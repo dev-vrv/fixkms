@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MyButton from "../Button/MyButton";
-import { fetchExportData } from "../../../utils/fetchData";
+import { fetchExportData, fetchForm } from "../../../utils/fetchData";
+
 
 const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm, data, selectedEquipments }) => {
     const [formData, setFormData] = useState({
@@ -13,12 +14,23 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
         equipment_ids: [],
     });
 
-    const companies = [...new Set(data.equipments.map((item) => item.Компания))];
+    const [optionsData, setOptionsData] = useState(null);
     const users = data.users || [];
+
+
+    useEffect(() => {
+        setOptionsData(null);
+        fetchForm(`assets/handbooks/equipments`, "get", null, null).then(response => {
+            setOptionsData(response.data);
+        });
+    }
+        , [setOptionsData]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+
 
     const handleCreateReport = (e) => {
         e.preventDefault();
@@ -62,11 +74,13 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
                     onChange={handleChange}
                 >
                     <option value="">Выберите компанию</option>
-                    {companies.map((company, index) => (
-                        <option key={index} value={company}>
-                            {company}
-                        </option>
-                    ))}
+                    {optionsData && optionsData.Компания.map((company, index) => {
+                        return (
+                            <option key={index} value={company}>
+                                {company}
+                            </option>
+                        )
+                    })}
                 </select>
             </div>
 

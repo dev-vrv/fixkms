@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MyButton from "../Button/MyButton";
-import { fetchExportData } from "../../../utils/fetchData";
+import { fetchExportData, fetchForm } from "../../../utils/fetchData";
 
 const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportForm, data, selectedEquipments }) => {
     const [formData, setFormData] = useState({
@@ -13,12 +13,22 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
         equipment_ids: [],
     });
 
-    const companies = [...new Set(data.equipments.map((item) => item.Компания))];
+    const [optionsData, setOptionsData] = useState(null);
     const users = data.users || [];
-    
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    useEffect(() => {
+        setOptionsData(null);
+        fetchForm(`assets/handbooks/equipments`, "get", null, null).then(response => {
+            setOptionsData(response.data);
+        });
+    }
+        , [setOptionsData]);
+
+
 
     const handleCreateReport = (e) => {
         e.preventDefault();
@@ -60,11 +70,13 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
                         onChange={handleChange}
                     >
                         <option value="">Выберите компанию</option>
-                        {companies.map((company, index) => (
-                            <option key={index} value={company}>
-                                {company}
-                            </option>
-                        ))}
+                        {optionsData && optionsData.Компания.map((company, index) => {
+                            return (
+                                <option key={index} value={company}>
+                                    {company}
+                                </option>
+                            )
+                        })}
                     </select>
                 </div>
 

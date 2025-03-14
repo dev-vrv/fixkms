@@ -323,7 +323,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
                       className="btn-link"
                     />
                     <MyButton
-                      text="Сгенерировать инвентаризационные этикетки"
+                      text="Инвентарные этикетки"
                       onClick={handleGeneratePdfLabels}
                       style={{ width: "fit-content" }}
                       className="btn-link"
@@ -385,9 +385,10 @@ const AssetsActions = ({ role, tab, data, setData }) => {
         </div>
       )}
 
-      {EquimpentReportForm({ showEquipmentReportForm, setShowEquipmentReportForm, data, selectedEquipments })}
-      {BrokenEquipmentReportForm({ showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm, data, selectedEquipments })}
-      {TemporaryEquipmentReportForm({ showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm, data, selectedEquipments })}
+      {EquimpentReportForm({ showEquipmentReportForm, setShowEquipmentReportForm, data, selectedEquipments, optionsData })}
+      {BrokenEquipmentReportForm({ showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm, data, selectedEquipments, optionsData })}
+      {TemporaryEquipmentReportForm({ showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm, data, selectedEquipments, optionsData })}
+
     </>
   );
 };
