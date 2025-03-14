@@ -277,6 +277,9 @@ class ExportFile(models.Model):
 
 class HandbookEquipments(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
+    Производитель = models.CharField(max_length=255, blank=True, null=True)
+    Тип = models.CharField(max_length=255, blank=True, null=True)
+    Модель = models.CharField(max_length=255, blank=True, null=True)
     Серисная_Организация = models.CharField(max_length=255, blank=True, null=True)
     Диагональ = models.FloatField(blank=True, null=True)
     Количество_Мегапикселей = models.FloatField(blank=True, null=True)

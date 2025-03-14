@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MyButton from "../Button/MyButton";
 import { fetchExportData } from "../../../utils/fetchData";
 
-const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportForm, data }) => {
+const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportForm, data, selectedEquipments }) => {
     const [formData, setFormData] = useState({
         employee_name: "",
         company_name: "",
@@ -13,22 +13,22 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
         equipment_ids: [],
     });
 
-
     const companies = [...new Set(data.equipments.map((item) => item.Компания))];
-
     const users = data.users || [];
-
-
+    
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleCreateReport = (e) => {
         e.preventDefault();
-        fetchExportData('forms/reception', formData, null, null, 'docx', 'Equipments_Report');
+        setFormData((prevState) => {
+            const updatedData = { ...prevState, equipment_ids: selectedEquipments };
+            fetchExportData('forms/reception', updatedData, null, null, 'docx', 'Equipments_Report');
+            return updatedData;
+        });
     };
-
-    if (!showEquipmentReportForm) return null;
+    if (!showEquipmentReportForm || !selectedEquipments.length) return null;
     else {
         return (
             <form className="d-flex p-3 gap-3 flex-column form-container">
@@ -122,27 +122,16 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
 
                 {/* Выбор оборудования */}
                 <div className="d-flex flex-column gap-2">
-                    <label className="form-label">Выберите оборудование</label>
-                    <select
-                        multiple
-                        name="equipment_ids"
-                        className="form-control"
-                        onChange={(e) => {
-                            const selectedOptions = [...e.target.selectedOptions].map(
-                                (option) => option.value
-                            );
-                            setFormData({ ...formData, equipment_ids: selectedOptions });
-                        }}
-                    >
-                        {data.equipments.map((item) => (
-                            <option key={item.id} value={item.id}>
-                                {item.Модель} ({item.Инв_Номер_Бухгалтерии || "Без инв. номера"})
-                            </option>
+                    <p className="form-label">Избранное оборудование</p>
+                    <div className="d-flex flex-column gap-2 w-fit">
+                        {data.equipments.map((equipment) => (
+                            selectedEquipments.includes(equipment.id) && (
+                                <div className="p-2 border w-100" key={equipment.id}>
+                                    {'id: ' + equipment.id + ' Модель: ' + equipment.Модель + ' Серийный номер: ' + equipment.Серийный_Номер}
+                                </div>
+                            )
                         ))}
-                    </select>
-                    <small className="form-text text-muted">
-                        Удерживайте `Ctrl` (Windows) или `Cmd` (Mac), чтобы выбрать несколько.
-                    </small>
+                    </div>
                 </div>
 
                 {/* Кнопки */}

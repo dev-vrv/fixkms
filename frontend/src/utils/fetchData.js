@@ -99,7 +99,7 @@ export const fetchImportData = async (url, file, modelName, setFetchError = null
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("name", modelName);
-		const response = await axios.post(`${API_URL}/${url}/`, formData, {
+		const response = await axios.post(`${API_URL}${url}/`, formData, {
 			headers: {
 				Authorization: `Bearer ${access}`,
 				"Content-Type": "multipart/form-data",

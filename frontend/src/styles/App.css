@@ -200,6 +200,24 @@ button:hover {
 	border: 2px solid #ffffff00 !important;
 }
 
+.btn-link {
+	padding: 0.25rem !important;
+	border: none !important;
+	background-color: transparent !important;
+	color: black !important;
+	border-bottom: 1px solid black !important;
+	border-radius: 0 !important;
+}
+
+.btn-link:hover  {
+	padding: 0.25rem !important;
+	border: none !important;
+	background-color: #ccc;
+	color: black !important;
+	border-bottom: 1px solid black !important;
+	border-radius: 0 !important;
+}
+
 .text-capitalize {
 	text-transform: capitalize;
 }

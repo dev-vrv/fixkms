@@ -149,6 +149,11 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 			update: `assets/handbooks/programs/${formData.id}`,
 			get: 'assets/handbooks/programs',
 		},
+		company: {
+			delete: `assets/handbooks/company/${formData.id}`,
+			update: `assets/handbooks/company/${formData.id}`,
+			get: 'assets/handbooks/company',
+		}
 	}
 
 	const urls = isHandbook ? handbooksUrls : assetsUrls;
@@ -221,7 +226,6 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 			</div>
 		)
 	}
-
 	const Change = () => {
 		return (
 			<div className="form-container">

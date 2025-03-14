@@ -154,14 +154,14 @@ urlpatterns = [
         name="custom-asset-list",
     ),
     path(
-        "import/",
-        ImportDBView.as_view(),
-        name="import_db",
-    ),
-    path(
         "export/",
         ExportDBView.as_view(),
         name="export_db",
+    ),
+    path(
+        "import/",
+        ImportDBView.as_view(),
+        name="import_db",
     ),
     path(
         "handbooks/<str:asset>/",

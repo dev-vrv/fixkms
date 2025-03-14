@@ -89,6 +89,11 @@ class UserUpdateView(APIView):
             raise PermissionDenied("Вы не можете редактировать чужой профиль.")
 
         serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+        password = request.data.get("password")
+        if password:
+            user.set_password(password)
+            user.save()
+            
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -133,6 +138,7 @@ class UserLogout(APIView):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+            
             
 class UserChangePassword(APIView):
     permission_classes = [IsAuthenticated]

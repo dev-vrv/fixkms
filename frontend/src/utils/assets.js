@@ -18,6 +18,8 @@ export const translateAssets = (text) => {
 			return "Справочники";
 		case "companys":
 			return "Компании";
+		case "company":
+			return "Компании";
 		default:
 			return text;
 	}

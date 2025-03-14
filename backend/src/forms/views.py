@@ -273,7 +273,6 @@ class BrokenEquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-
             employee_name = data.get("employee_name")
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
@@ -281,10 +280,6 @@ class BrokenEquipmentReportView(APIView):
             signer_1 = data.get("signer_1")
             signer_2 = data.get("signer_2")
             equipment_ids = data.get("equipment_ids", [])
-
-            equipment_ids = [int(equip["id"]) for equip in equipment_ids if isinstance(equip, dict) and "id" in equip]
-
-
             equipments = Equipments.objects.filter(id__in=equipment_ids)
 
             if not equipments.exists():
@@ -412,9 +407,7 @@ class BrokenEquipmentReportView(APIView):
 class EquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
-
             data = request.data
-
             employee_name = data.get("employee_name")
             company_name = data.get("company_name")
             position_1 = data.get("position_1")

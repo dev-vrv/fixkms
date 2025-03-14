@@ -12,7 +12,9 @@ import Cookies from "js-cookie";
 import EquimpentReportForm from "../../components/UI/Forms/EquimpentReportForm";
 import BrokenEquipmentReportForm from "../../components/UI/Forms/BrokenEquipmentReportForm";
 import TemporaryEquipmentReportForm from "../../components/UI/Forms/TemporaryEquipmentReportForm";
+import DropDown from "../../components/UI/DropDown/DropDown";
 const handbooksList = ["equipments", "programs", "components", "consumables", "users"];
+
 
 const ChangePassForm = ({ setShowChangePassForm }) => {
   const [oldPassword, setOldPassword] = useState("");
@@ -120,6 +122,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
   const [showEquipmentReportForm, setShowEquipmentReportForm] = useState(false);
   const [showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm] = useState(false);
   const [showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm] = useState(false);
+  const [selectedEquipments, setSelectedEquipments] = useState([]);
 
   useEffect(() => {
     setOptionsData(null);
@@ -138,7 +141,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
       }
     });
 
-    fetchExportData("assets/import", { name: tab, pks: pks });
+    fetchExportData("assets/export", { name: tab, pks: pks });
   };
 
   const toggleFormVisibility = () => {
@@ -148,6 +151,18 @@ const AssetsActions = ({ role, tab, data, setData }) => {
   const toggleImportFormVisibility = () => {
     setImportFormVisible((prev) => !prev);
   };
+
+  const getSelectedEquipments = () => {
+    const inputs = document.querySelectorAll(`[data-export-select-asset="${tab}"]`);
+    const pks = [];
+    inputs.forEach((input) => {
+      if (input.checked) {
+        pks.push(parseInt(input.getAttribute("data-export-select")));
+      }
+    });
+    setSelectedEquipments(pks);
+    return pks;
+  }
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -161,7 +176,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
       return;
     }
     await fetchImportData(
-      "assets/export",
+      "assets/import",
       file,
       tab,
       (error) => {
@@ -220,6 +235,39 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     }
   };
 
+  const handleEquipmentReport = () => {
+    const pks = getSelectedEquipments();
+    if (pks.length === 0) {
+      alert("Выберите хотя бы один элемент!");
+      return;
+    }
+    else {
+      setShowEquipmentReportForm(true);
+    }
+  };
+
+  const handleTemporaryEquipmentReport = () => {
+    const pks = getSelectedEquipments();
+    if (pks.length === 0) {
+      alert("Выберите хотя бы один элемент!");
+      return;
+    }
+    else {
+      setShowTemporaryEquipmentReportForm(true);
+    }
+  };
+
+  const handleBrokenEquipmentReport = () => {
+    const pks = getSelectedEquipments();
+    if (pks.length === 0) {
+      alert("Выберите хотя бы один элемент!");
+      return;
+    }
+    else {
+      setShowBrokenEquipmentReportForm(true);
+    }
+  }
+
   const ActionsButtons = () => {
     return (
       <div className="d-flex gap-3 align-items-center flex-wrap" style={{ width: "100%", justifyContent: "space-between" }}>
@@ -251,11 +299,39 @@ const AssetsActions = ({ role, tab, data, setData }) => {
                 onClick={exportData}
                 style={{ width: "fit-content" }}
               />
-              <MyButton
-                text="Сгенерировать Ярлыки"
-                onClick={handleGeneratePdfLabels}
-                style={{ width: "fit-content" }}
-              />
+
+
+              {
+                tab === "equipments" && (
+                  <DropDown buttonText="Создать акт">
+                    <MyButton
+                      text="Акт возврата оборудования"
+                      onClick={() => handleEquipmentReport()}
+                      style={{ width: "fit-content" }}
+                      className="btn-link"
+                    />
+                    <MyButton
+                      text="Акт приема неисправного оборудования"
+                      onClick={() => handleBrokenEquipmentReport()}
+                      style={{ width: "fit-content" }}
+                      className="btn-link"
+                    />
+                    <MyButton
+                      text="Акт передачи оборудования во временное пользование"
+                      onClick={() => handleTemporaryEquipmentReport()}
+                      style={{ width: "fit-content" }}
+                      className="btn-link"
+                    />
+                    <MyButton
+                      text="Сгенерировать инвентаризационные ярлыки"
+                      onClick={handleGeneratePdfLabels}
+                      style={{ width: "fit-content" }}
+                      className="btn-link"
+                    />
+                  </DropDown>
+                )
+              }
+
             </>
           )}
         </div>
@@ -269,43 +345,17 @@ const AssetsActions = ({ role, tab, data, setData }) => {
             style={{ width: "fit-content" }}
             className="btn-danger"
           />
-
         </div>
         {showChangePassForm && <ChangePassForm showChangePassForm={showChangePassForm} setShowChangePassForm={setShowChangePassForm} />}
       </div>
     )
   };
 
-
   return (
     <>
       <div className="p-3 px-3 border-bottom d-flex justify-content-between gap-3">
         <ActionsButtons />
       </div>
-
-      {
-        tab === "equipments" && (
-          <div className="d-flex gap-3 w-100 border-bottom py-3 px-3">
-            <MyButton
-              text="Акт возврата оборудования"
-              onClick={() => setShowEquipmentReportForm(true)}
-              style={{ width: "fit-content" }}
-            />
-            <MyButton
-              text="Акт приема неисправного оборудования"
-              onClick={() => setShowBrokenEquipmentReportForm(true)}
-              style={{ width: "fit-content" }}
-            />
-            <MyButton
-              text="Акт передачи оборудования во временное пользование"
-              onClick={() => setShowTemporaryEquipmentReportForm(true)}
-              style={{ width: "fit-content" }}
-            />
-          </div>
-
-        )
-      }
-
 
       {formVisible && (
         <div className="p-3 border rounded form-container">
@@ -335,9 +385,9 @@ const AssetsActions = ({ role, tab, data, setData }) => {
         </div>
       )}
 
-      {EquimpentReportForm({ showEquipmentReportForm, setShowEquipmentReportForm, data })}
-      {BrokenEquipmentReportForm({ showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm, data })}
-      {TemporaryEquipmentReportForm({ showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm, data })}
+      {EquimpentReportForm({ showEquipmentReportForm, setShowEquipmentReportForm, data, selectedEquipments })}
+      {BrokenEquipmentReportForm({ showBrokenEquipmentReportForm, setShowBrokenEquipmentReportForm, data, selectedEquipments })}
+      {TemporaryEquipmentReportForm({ showTemporaryEquipmentReportForm, setShowTemporaryEquipmentReportForm, data, selectedEquipments })}
     </>
   );
 };

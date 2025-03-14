@@ -374,6 +374,7 @@ class AssetsListView(APIView):
         if user.Роль == "admin":
             return model.objects.all()
         elif user.Роль == "manager":
+            print(user.Организация)
             return model.objects.filter(Сотрудник_Компания=user.Организация)
         else:
             return model.objects.filter(Сотрудник_Логин=user.username)
@@ -455,10 +456,10 @@ def export_assets_to_csv(file_path, model_name, pks=None):
         if not data.exists():
             return f"В '{model_name}' нет данных."
 
-        with open(file_path, mode="w", newline="", encoding="utf-8") as file:
-            writer = csv.writer(file)
-            # Записываем заголовки из fields_mapping
-            writer.writerow(field_names)
+        with open(file_path, mode="w", newline="", encoding="utf-8-sig") as file:
+            # Разделитель — точка с запятой
+            writer = csv.writer(file, delimiter=";")
+            writer.writerow(field_names)  # Заголовки
 
             for item in data:
                 writer.writerow([getattr(item, field, "")
@@ -481,9 +482,10 @@ def export_assets_to_csv(file_path, model_name, pks=None):
         field_names = fields_mapping.get(
             "custom_assets", [field.name for field in CustomAssetDetails._meta.fields])
 
-        with open(file_path, mode="w", newline="", encoding="utf-8") as file:
-            writer = csv.writer(file)
-            writer.writerow(field_names)
+        with open(file_path, mode="w", newline="", encoding="utf-8-sig") as file:
+            # Разделитель — точка с запятой
+            writer = csv.writer(file, delimiter=";")
+            writer.writerow(field_names)  # Заголовки
 
             for item in custom_assets_details:
                 writer.writerow([getattr(item, field, "")
@@ -504,7 +506,7 @@ def send_file_to_user(file_path, filename):
 
 
 # import database
-class ImportDBView(APIView):
+class ExportDBView(APIView):
     def post(self, request, *args, **kwargs):
         model_name = request.data.get("name")
         pks = request.data.get("pks")
@@ -527,81 +529,55 @@ class ImportDBView(APIView):
             return Response({"detail": exported_file_path}, status=200)
 
 
-# utlis for write to db from .csv
+# Функция импорта данных из CSV в БД
 def import_csv_to_db(file_path, model_name):
     model = model_mapping.get(model_name.lower())
 
     if model:
-
         try:
-            model.objects.all().delete()
+            model.objects.all().delete()  # Очистка таблицы перед импортом
 
-            with open(file_path, mode="r", encoding="utf-8") as file:
-                reader = csv.DictReader(file)
+            with open(file_path, mode="r", encoding="utf-8-sig") as file:
+                # Используем разделитель ";"
+                reader = csv.DictReader(file, delimiter=";")
                 instances = []
 
                 for row in reader:
                     for field in row:
-                        # date_string = (
-                        #     row[field].strip() if isinstance(row[field], str) else None
-                        # )
+                        value = row[field].strip() if isinstance(
+                            row[field], str) else None
 
-                        # if "дата" in field.lower() and date_string:
-                        #     try:
-                        #         input_datetime = parser.parse(date_string)
-                        #         new_datetime = input_datetime + timedelta(days=4)
-                        #         new_datetime = new_datetime.replace(
-                        #             hour=10,
-                        #             minute=58,
-                        #             second=38,
-                        #             microsecond=275780,
-                        #             tzinfo=None,
-                        #         )
-                        #         row[field] = new_datetime
-
-                        #     except Exception as e:
-                        #         print(
-                        #             f"Ошибка формата даты в строке '{date_string}': {str(e)}."
-                        #         )
-                        #         row[field] = None
-                        # else:
-                        #     row[field] = None if date_string == "" else row[field]
-
-                        date_string = (
-                            row[field].strip() if isinstance(
-                                row[field], str) else None
-                        )
-
-                        if "Дата" in field and isinstance(row[field], str):
-                            row[field] = row[field] if row[field].strip() else None
+                        # Обработка дат
+                        if "Дата" in field and isinstance(value, str):
+                            row[field] = value if value else None
                         else:
-                            row[field] = None if date_string == "" else row[field]
+                            row[field] = None if value == "" else value
 
+                        # Обработка числовых значений
                         if "Стоимость" in field or "Номер" in field:
-                            if row[field] == "" or row[field] is None:
+                            if value in [None, ""]:
                                 row[field] = None
                             else:
                                 try:
-                                    row[field] = float(row[field])
+                                    row[field] = float(value)
                                 except ValueError:
                                     print(
-                                        f"Ошибка формата числа в строке: {row}. Ожидается числовое значение."
-                                    )
+                                        f"Ошибка формата числа: {value} в строке {row}. Ожидается число.")
                                     row[field] = None
+
                     try:
                         instance = model(**row)
                         instances.append(instance)
                     except Exception as e:
                         print(
-                            f"Ошибка при создании экземпляра модели: {str(e)} для строки: {row}"
-                        )
+                            f"Ошибка при создании экземпляра модели: {str(e)} для строки: {row}")
 
                 model.objects.bulk_create(instances)
 
-            return f"Импорт данных '{model_name}' завершен."
+            return f"Импорт данных в '{model_name}' завершен."
 
         except Exception as e:
-            return f"Произошла ошибка при импорте данных: {str(e)}."
+            return f"Ошибка импорта данных: {str(e)}."
 
     else:
         asset_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -616,36 +592,37 @@ def import_csv_to_db(file_path, model_name):
         try:
             CustomAssetDetails.objects.filter(Актив=custom_asset).delete()
 
-            with open(file_path, mode="r", encoding="utf-8") as file:
-                reader = csv.DictReader(file)
+            with open(file_path, mode="r", encoding="utf-8-sig") as file:
+                # Используем разделитель ";"
+                reader = csv.DictReader(file, delimiter=";")
                 instances = []
 
                 for row in reader:
                     for field in row:
-                        date_string = (
-                            row[field].strip() if isinstance(
-                                row[field], str) else None
-                        )
+                        value = row[field].strip() if isinstance(
+                            row[field], str) else None
 
-                        if "Дата" in field and isinstance(row[field], str):
-                            row[field] = row[field] if row[field].strip() else None
+                        # Обработка дат
+                        if "Дата" in field and isinstance(value, str):
+                            row[field] = value if value else None
                         else:
-                            row[field] = None if date_string == "" else row[field]
+                            row[field] = None if value == "" else value
 
+                        # Обработка чисел
                         if "Стоимость" in field or "Номер" in field:
-                            if row[field] == "" or row[field] is None:
+                            if value in [None, ""]:
                                 row[field] = None
                             else:
                                 try:
-                                    row[field] = float(row[field])
+                                    row[field] = float(value)
                                 except ValueError:
                                     print(
-                                        f"Ошибка формата числа в строке: {row[id]}. Ожидается числовое значение."
-                                    )
+                                        f"Ошибка формата числа: {value} в строке {row}. Ожидается число.")
                                     row[field] = None
 
-                    if "Не_Инвент" not in row or row["Не_Инвент"] in [None, ""]:
-                        row["Не_Инвент"] = False
+                    # Установка значения по умолчанию для поля "Не_Инвент"
+                    row["Не_Инвент"] = row.get(
+                        "Не_Инвент", False) not in [None, ""]
 
                     try:
                         asset_value = row.pop("Актив", None)
@@ -654,19 +631,18 @@ def import_csv_to_db(file_path, model_name):
                         instances.append(instance)
                     except Exception as e:
                         print(
-                            f"Ошибка при создании экземпляра модели: {str(e)} для строки: {row}"
-                        )
+                            f"Ошибка при создании экземпляра модели: {str(e)} для строки: {row}")
 
                 CustomAssetDetails.objects.bulk_create(instances)
 
             return f"Импорт данных для актива '{asset_name}' завершен."
 
         except Exception as e:
-            return f"Произошла ошибка при импорте данных: {str(e)}."
+            return f"Ошибка импорта данных: {str(e)}."
 
 
-# export database
-class ExportDBView(APIView):
+# APIView для импорта CSV
+class ImportDBView(APIView):
     queryset = ExportFile.objects.all()
     serializer_class = ExportFileSerializer
     parser_classes = (MultiPartParser, FormParser)
@@ -677,16 +653,10 @@ class ExportDBView(APIView):
         file = request.FILES.get("file")
 
         if not model_name:
-            return Response(
-                {"error": "Название актива не указано."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "Название актива не указано."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not file:
-            return Response(
-                {"error": "Файл не был загружен."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "Файл не был загружен."}, status=status.HTTP_400_BAD_REQUEST)
 
         self.model_name = model_name
 
@@ -708,10 +678,7 @@ class ExportDBView(APIView):
         except Exception as e:
             print(f"Ошибка при удалении файла: {str(e)}.")
 
-        return Response(
-            {"detail": imported_file_path},
-            status=status.HTTP_201_CREATED,
-        )
+        return Response({"detail": imported_file_path}, status=status.HTTP_201_CREATED)
 
 
 class HandbookView(APIView):
