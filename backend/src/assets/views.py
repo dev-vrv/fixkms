@@ -42,9 +42,29 @@ from assets.serializers import (
 )
 from accounts.serializers import UserSerializer
 from accounts.models import User
+from datetime import datetime
 import csv
 import os
+import chardet
 
+
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as f:
+        raw_data = f.read(50000)
+        result = chardet.detect(raw_data)
+        return result['encoding']
+
+def is_valid_date(value, date_formats=["%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"]):
+    """
+    Проверяет, соответствует ли строка одному из форматов даты.
+    """
+    for date_format in date_formats:
+        try:
+            datetime.strptime(value, date_format)
+            return True
+        except ValueError:
+            continue
+    return False
 
 model_mapping = {
     "equipments": Equipments,
@@ -374,7 +394,6 @@ class AssetsListView(APIView):
         if user.Роль == "admin":
             return model.objects.all()
         elif user.Роль == "manager":
-            print(user.Организация)
             return model.objects.filter(Сотрудник_Компания=user.Организация)
         else:
             return model.objects.filter(Сотрудник_Логин=user.username)
@@ -532,13 +551,12 @@ class ExportDBView(APIView):
 # Функция импорта данных из CSV в БД
 def import_csv_to_db(file_path, model_name):
     model = model_mapping.get(model_name.lower())
+    errors = []
+    encoding = detect_encoding(file_path)
 
     if model:
         try:
-            model.objects.all().delete()  # Очистка таблицы перед импортом
-
-            with open(file_path, mode="r", encoding="utf-8-sig") as file:
-                # Используем разделитель ";"
+            with open(file_path, mode="r", encoding=encoding) as file:
                 reader = csv.DictReader(file, delimiter=";")
                 instances = []
 
@@ -549,35 +567,41 @@ def import_csv_to_db(file_path, model_name):
 
                         # Обработка дат
                         if "Дата" in field and isinstance(value, str):
-                            row[field] = value if value else None
+                            if is_valid_date(value):
+                                row[field] = value
+                            else:
+                                errors.append(
+                                    f'{field}: {row[field]} Ошибка формата даты \n'
+                                )
+                                row[field] = None
                         else:
                             row[field] = None if value == "" else value
 
                         # Обработка числовых значений
-                        if "Стоимость" in field or "Номер" in field:
+                        if "Стоимость" in field:
                             if value in [None, ""]:
                                 row[field] = None
                             else:
                                 try:
                                     row[field] = float(value)
                                 except ValueError:
-                                    print(
-                                        f"Ошибка формата числа: {value} в строке {row}. Ожидается число.")
+                                    errors.append(
+                                        f'{field}: {row[field]} Ошибка формата числа'
+                                    )
                                     row[field] = None
 
                     try:
                         instance = model(**row)
                         instances.append(instance)
                     except Exception as e:
-                        print(
-                            f"Ошибка при создании экземпляра модели: {str(e)} для строки: {row}")
+                        errors.append(
+                            f"Ошибка при создании экземпляра модели: {str(e)} для id: {row['id']}"
+                        )
 
                 model.objects.bulk_create(instances)
 
-            return f"Импорт данных в '{model_name}' завершен."
-
         except Exception as e:
-            return f"Ошибка импорта данных: {str(e)}."
+            errors.append(f"Ошибка импорта данных: {str(e)}.")
 
     else:
         asset_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -587,13 +611,12 @@ def import_csv_to_db(file_path, model_name):
         if created:
             print(f"Создан новый актив: {asset_name}")
         else:
-            print(f"Найден существующий актив: {asset_name}")
+            errors.append(f"Найден существующий актив: {asset_name}")
 
         try:
             CustomAssetDetails.objects.filter(Актив=custom_asset).delete()
-
-            with open(file_path, mode="r", encoding="utf-8-sig") as file:
-                # Используем разделитель ";"
+            error_message = ''
+            with open(file_path, mode="r", encoding=encoding) as file:
                 reader = csv.DictReader(file, delimiter=";")
                 instances = []
 
@@ -604,20 +627,28 @@ def import_csv_to_db(file_path, model_name):
 
                         # Обработка дат
                         if "Дата" in field and isinstance(value, str):
-                            row[field] = value if value else None
+                            if is_valid_date(value):
+                                row[field] = value
+                            else:
+                                errors.append(
+                                    f'{field}: {row[field]} Ошибка формата даты  \n'
+                                )
+                                row[field] = None
                         else:
                             row[field] = None if value == "" else value
 
                         # Обработка чисел
-                        if "Стоимость" in field or "Номер" in field:
+                        if "Стоимость" in field:
                             if value in [None, ""]:
                                 row[field] = None
                             else:
                                 try:
                                     row[field] = float(value)
                                 except ValueError:
-                                    print(
-                                        f"Ошибка формата числа: {value} в строке {row}. Ожидается число.")
+                                    errors.append(
+                                        f'{field}: {row[field]} Ошибка формата числа'
+                                    )
+                                    error_message += f"Ошибка формата числа: {value} в строке {row}. Ожидается число.\n"
                                     row[field] = None
 
                     # Установка значения по умолчанию для поля "Не_Инвент"
@@ -630,15 +661,18 @@ def import_csv_to_db(file_path, model_name):
                             Актив=custom_asset, **row)
                         instances.append(instance)
                     except Exception as e:
-                        print(
-                            f"Ошибка при создании экземпляра модели: {str(e)} для строки: {row}")
+                        errors.append(
+                            f"Ошибка при создании экземпляра модели: {str(e)} для id: {row['id']}"
+                        )
 
                 CustomAssetDetails.objects.bulk_create(instances)
-
-            return f"Импорт данных для актива '{asset_name}' завершен."
-
         except Exception as e:
-            return f"Ошибка импорта данных: {str(e)}."
+            errors.append(f"Ошибка импорта данных: {str(e)}.")
+
+    return {
+        "imported_file_path": file_path,
+        "errors": errors
+    }
 
 
 # APIView для импорта CSV
@@ -646,7 +680,6 @@ class ImportDBView(APIView):
     queryset = ExportFile.objects.all()
     serializer_class = ExportFileSerializer
     parser_classes = (MultiPartParser, FormParser)
-    model_name = ""
 
     def post(self, request, *args, **kwargs):
         model_name = request.data.get("name")
@@ -658,8 +691,6 @@ class ImportDBView(APIView):
         if not file:
             return Response({"error": "Файл не был загружен."}, status=status.HTTP_400_BAD_REQUEST)
 
-        self.model_name = model_name
-
         return self.perform_create(file, model_name)
 
     def perform_create(self, file, model_name):
@@ -667,18 +698,40 @@ class ImportDBView(APIView):
             settings.MEDIA_ROOT, "uploads", f"{model_name}.csv")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-        with open(file_path, "wb") as f:
-            for chunk in file.chunks():
-                f.write(chunk)
-
-        imported_file_path = import_csv_to_db(file_path, model_name)
-
         try:
-            os.remove(file_path)
-        except Exception as e:
-            print(f"Ошибка при удалении файла: {str(e)}.")
+            with open(file_path, "wb") as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
 
-        return Response({"detail": imported_file_path}, status=status.HTTP_201_CREATED)
+            import_result = import_csv_to_db(file_path, model_name)
+            imported_file_path = import_result.get("imported_file_path")
+            import_errors = import_result.get("errors")
+
+            # Удаляем файл после импорта
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Ошибка при удалении файла: {str(e)}.")
+
+            if (import_errors):
+                return Response(
+                    {"error": import_errors, 'message': 'Ошибка при импорте данных.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            else:
+                return Response(
+                    {
+                        "message": "Файл успешно импортирован.",
+                        "imported_file_path": imported_file_path,
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+
+        except Exception as e:
+            return Response(
+                {"error": f"Ошибка при импорте: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class HandbookView(APIView):
@@ -727,7 +780,8 @@ class HandbookView(APIView):
                 result['Сотрудник'] = [request.user.username]
                 result['Сотрудник_Логин'] = [request.user.username]
             else:
-                result['Сотрудник_Логин'] = [item['username'] for item in User.objects.all().values()]
+                result['Сотрудник_Логин'] = [item['username']
+                                             for item in User.objects.all().values()]
         else:
             result = {
                 'Роль': ['admin', 'manager', 'user'],

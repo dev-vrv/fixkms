@@ -194,7 +194,9 @@ const AssetsActions = ({ role, tab, data, setData }) => {
         },
           2000);
       }
-    );
+    ).then(response => {
+      console.log(response);
+    });
   };
 
   const handleLogout = async () => {

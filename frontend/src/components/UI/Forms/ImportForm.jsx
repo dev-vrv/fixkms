@@ -4,7 +4,7 @@ const ImportForm = ({ tab, importAlertType, setImportAlertType, importAlert, set
     return (
         <div className="p-3 border rounded form-container">
             <h3>Импортировать CSV для {tab}</h3>
-            {importAlert && <div className={`alertBox ${importAlertType}`}>
+            {importAlert && <div className={`alertBox ${importAlertType}`} style={{ maxHeight: "200px", overflowY: "auto" }}>
                 {importAlert}
                 <button type="button" className="p-1" onClick={() => {
                     setImportAlert(null);
