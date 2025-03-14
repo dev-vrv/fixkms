@@ -724,6 +724,10 @@ class HandbookView(APIView):
             result = {key: list(value) for key, value in result.items()}
             if request.user.Роль == "manager":
                 result['Сотрудник_Компания'] = [request.user.Организация]
+                result['Сотрудник'] = [request.user.username]
+                result['Сотрудник_Логин'] = [request.user.username]
+            else:
+                result['Сотрудник_Логин'] = [item['username'] for item in User.objects.all().values()]
         else:
             result = {
                 'Роль': ['admin', 'manager', 'user'],

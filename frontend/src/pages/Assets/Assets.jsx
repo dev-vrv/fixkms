@@ -303,7 +303,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
 
               {
                 tab === "equipments" && (
-                  <DropDown buttonText="Создать акт">
+                  <DropDown buttonText="Печатные формы">
                     <MyButton
                       text="Акт возврата оборудования"
                       onClick={() => handleEquipmentReport()}

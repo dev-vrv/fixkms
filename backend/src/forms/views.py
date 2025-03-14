@@ -13,6 +13,7 @@ from assets.models import (
     Consumables,
     Repairs,
 )
+from accounts.models import User
 from assets.serializers import EquipmentsSerializer
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
@@ -273,7 +274,8 @@ class BrokenEquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-            employee_name = data.get("employee_name")
+            user = User.objects.get(username=data.get("employee_name"))
+            employee_name = f'{user.Фамилия} {user.Имя} {user.Отчество}'
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
             position_2 = data.get("position_2")
@@ -408,7 +410,8 @@ class EquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-            employee_name = data.get("employee_name")
+            user = User.objects.get(username=data.get("employee_name"))
+            employee_name = f'{user.Фамилия} {user.Имя} {user.Отчество}'
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
             position_2 = data.get("position_2")
@@ -555,8 +558,8 @@ class TemporaryEquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-
-            employee_name = data.get("employee_name")
+            user = User.objects.get(username=data.get("employee_name"))
+            employee_name = f'{user.Фамилия} {user.Имя} {user.Отчество}'
             company_name = data.get("company_name")
             position_1 = data.get("position_1")
             position_2 = data.get("position_2")

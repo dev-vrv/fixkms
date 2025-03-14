@@ -147,7 +147,7 @@ const TemporaryEquipmentReportForm = ({ showTemporaryEquipmentReportForm, setSho
 
             {/* Кнопки */}
             <div className="d-flex gap-3 flex-wrap">
-                <MyButton text={"Создать акт"} className="w-fit" onClick={handleCreateReport} />
+                <MyButton text={"Печатные формы"} className="w-fit" onClick={handleCreateReport} />
                 <MyButton text={"Отмена"} className="w-fit" onClick={() => setShowTemporaryEquipmentReportForm(false)} />
             </div>
         </form>
