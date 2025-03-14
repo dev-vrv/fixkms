@@ -451,7 +451,7 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
             )}
             <form onSubmit={(e) => e.preventDefault()} className="formObject" action={endPoint}>
                 <div className="d-flex gap-2 w-100 justify-content-between">
-                    <div className="d-flex gap-2">
+                    <div className="d-flex gap-2 flex-wrap">
                         <MyButton text={continueButtonText} onClick={handleSubmit} style={{ width: "fit-content" }} />
                         <MyButton text="Отмена" onClick={onClose} style={{ width: "fit-content" }} />
                     </div>

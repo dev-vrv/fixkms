@@ -94,7 +94,7 @@ const ChangePassForm = ({ setShowChangePassForm }) => {
         />
       </div>
 
-      <div className="d-flex gap-2">
+      <div className="d-flex gap-2 flex-wrap">
         <MyButton className="w-fit" text="Отмена" onClick={() => setShowChangePassForm(false)} />
         <MyButton className="w-fit btn-danger" text="Сменить пароль" type="submit" />
       </div>

@@ -135,7 +135,7 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
                 </div>
 
                 {/* Кнопки */}
-                <div className="d-flex gap-3">
+                <div className="d-flex gap-3 flex-wrap">
                     <MyButton text={'Создать акт'} className="w-fit" onClick={handleCreateReport} />
                     <MyButton text={'Отмена'} className="w-fit" onClick={() => setShowEquipmentReportForm(false)} />
                 </div>

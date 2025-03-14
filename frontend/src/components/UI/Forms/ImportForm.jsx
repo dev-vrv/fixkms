@@ -14,7 +14,7 @@ const ImportForm = ({ tab, importAlertType, setImportAlertType, importAlert, set
             <form onSubmit={handleImportSubmit} className="d-flex flex-column gap-3">
                 <label>Выберите файл</label>
                 <input type="file" accept=".csv" onChange={handleFileChange} className="form-control" />
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
                     <MyButton text="Отправить" type="submit" style={{ width: "fit-content" }} />
                     <MyButton text="Отмена" type="button" style={{ width: "fit-content" }} onClick={() => {
                         toggleImportFormVisibility(false);

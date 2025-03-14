@@ -23,7 +23,7 @@ const HandbooksTabs = ({ data, sync, role }) => {
         <div>
             <nav className="border-bottom">
                 <h3>Справочники</h3>
-                <ul style={{ display: "flex", listStyle: "none", padding: '0.5rem 0' }}>
+                <ul style={{ display: "flex", listStyle: "none", padding: '0.5rem 0', overflow: 'auto' }}>
                     {tabs.map((tab) => (
                         <li key={tab}>
                             <MyButton
