@@ -216,13 +216,15 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 
 	const Search = () => {
 		return (
-			<div className="d-flex gap-2 py-2 px-2">
+			<div className="d-flex gap-2 py-2 px-2 flex-wrap">
 				<SearchComponent search={search} setSearch={setSearch} />
-				<MyButton text="Поиск" onClick={() => handleSearch()} style={{ width: 'fit-content' }} />
-				<MyButton text="Сброс" onClick={() => {
-					setSearch("");
-					setViewData(fullData);
-				}} style={{ width: 'fit-content' }} />
+				<div className="d-flex gap-2">
+					<MyButton text="Поиск" onClick={() => handleSearch()} style={{ width: 'fit-content' }} />
+					<MyButton text="Сброс" onClick={() => {
+						setSearch("");
+						setViewData(fullData);
+					}} style={{ width: 'fit-content' }} />
+				</div>
 			</div>
 		)
 	}

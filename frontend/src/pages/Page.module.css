@@ -34,3 +34,10 @@
 	max-width: 500px;
 	min-width: 300px;
 }
+
+
+@media (max-width: 768px) {
+	.page {
+		flex-direction: column;
+	}
+}

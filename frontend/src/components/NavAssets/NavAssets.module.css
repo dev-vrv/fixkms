@@ -7,3 +7,15 @@
 	gap: 1em;
 	border-right: 1px solid #ccc;
 }
+
+
+@media (max-width: 768px) {
+	.side {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		height: fit-content !important;
+		width: 100% !important;
+		flex-wrap: wrap;
+	}
+}
