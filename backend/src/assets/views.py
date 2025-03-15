@@ -552,6 +552,7 @@ class ExportDBView(APIView):
 def import_csv_to_db(file_path, model_name):
     model = model_mapping.get(model_name.lower())
     errors = []
+    created = 0
     encoding = detect_encoding(file_path)
 
     if model:
@@ -571,7 +572,7 @@ def import_csv_to_db(file_path, model_name):
                                 row[field] = value
                             else:
                                 errors.append(
-                                    f'{field}: {row[field]} Ошибка формата даты \n'
+                                    'Ошибка формата даты \n'
                                 )
                                 row[field] = None
                         else:
@@ -586,16 +587,17 @@ def import_csv_to_db(file_path, model_name):
                                     row[field] = float(value)
                                 except ValueError:
                                     errors.append(
-                                        f'{field}: {row[field]} Ошибка формата числа'
+                                        f'{field}: {row[field]} '
                                     )
                                     row[field] = None
-
+                        
                     try:
                         instance = model(**row)
                         instances.append(instance)
+                        created += 1
                     except Exception as e:
                         errors.append(
-                            f"Ошибка при создании экземпляра модели: {str(e)} для id: {row['id']}"
+                            f"Ошибка при создании экземпляра модели: {row['id']}"
                         )
 
                 model.objects.bulk_create(instances)
@@ -671,7 +673,8 @@ def import_csv_to_db(file_path, model_name):
 
     return {
         "imported_file_path": file_path,
-        "errors": errors
+        "errors": set(errors),
+        "created": created,
     }
 
 
@@ -706,6 +709,7 @@ class ImportDBView(APIView):
             import_result = import_csv_to_db(file_path, model_name)
             imported_file_path = import_result.get("imported_file_path")
             import_errors = import_result.get("errors")
+            import_created = import_result.get("created")
 
             # Удаляем файл после импорта
             try:
@@ -713,15 +717,16 @@ class ImportDBView(APIView):
             except Exception as e:
                 print(f"Ошибка при удалении файла: {str(e)}.")
 
-            if (import_errors):
+            if (import_created == 0):
                 return Response(
-                    {"error": import_errors, 'message': 'Ошибка при импорте данных.'},
+                    {"error": import_errors, 'message': f'Ошибка при импорте данных. {set(import_errors)}'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             else:
                 return Response(
                     {
-                        "message": "Файл успешно импортирован.",
+                        "message": f"Файл успешно импортирован.",
+                        "errors": import_errors,
                         "imported_file_path": imported_file_path,
                     },
                     status=status.HTTP_201_CREATED

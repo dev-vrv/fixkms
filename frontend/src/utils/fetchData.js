@@ -106,8 +106,10 @@ export const fetchImportData = async (url, file, modelName, setFetchError = null
 			},
 		});
 
+		console.log("Успех:", response.data);
+
 		if (response.status === 200 || response.status < 300) {
-			setFetchSuccess?.("Данные успешно загружены!");
+			setFetchSuccess?.(response.data.message);
 		}
 	} catch (error) {
 		const errorMessage = error.response?.data?.error || error.response?.data?.detail || "Ошибка сервера.";
