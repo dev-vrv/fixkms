@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from collections import defaultdict
+from django.db import IntegrityError
 from .models import (
     CustomAsset,
     CustomAssetDetails,
@@ -553,6 +554,8 @@ def import_csv_to_db(file_path, model_name):
     model = model_mapping.get(model_name.lower())
     errors = []
     created = 0
+    exist = 0
+    pks = []
     encoding = detect_encoding(file_path)
 
     if model:
@@ -563,6 +566,7 @@ def import_csv_to_db(file_path, model_name):
 
                 for row in reader:
                     for field in row:
+                        pks.append(row.get("id"))
                         value = row[field].strip() if isinstance(
                             row[field], str) else None
 
@@ -587,23 +591,24 @@ def import_csv_to_db(file_path, model_name):
                                     row[field] = float(value)
                                 except ValueError:
                                     errors.append(
-                                        f'{field}: {row[field]} '
+                                        f'Ошибка формата числа \n'
                                     )
                                     row[field] = None
                         
                     try:
                         instance = model(**row)
                         instances.append(instance)
-                        created += 1
                     except Exception as e:
-                        errors.append(
-                            f"Ошибка при создании экземпляра модели: {row['id']}"
-                        )
+                        pass
 
                 model.objects.bulk_create(instances)
-
+            founded = model.objects.filter(id__in=pks)
+            created = founded.count()
+        except IntegrityError as e:
+            founded = model.objects.filter(id__in=pks)
+            exist = founded.count()
         except Exception as e:
-            errors.append(f"Ошибка импорта данных: {str(e)}.")
+            errors.append(f"Ошибка импорта данных: {str(e)}. \n")
 
     else:
         asset_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -633,7 +638,7 @@ def import_csv_to_db(file_path, model_name):
                                 row[field] = value
                             else:
                                 errors.append(
-                                    f'{field}: {row[field]} Ошибка формата даты  \n'
+                                    f'Ошибка формата даты \n'
                                 )
                                 row[field] = None
                         else:
@@ -646,11 +651,10 @@ def import_csv_to_db(file_path, model_name):
                             else:
                                 try:
                                     row[field] = float(value)
-                                except ValueError:
+                                except ValueError as e:
                                     errors.append(
-                                        f'{field}: {row[field]} Ошибка формата числа'
+                                        f'Ошибка формата числа {e} \n'
                                     )
-                                    error_message += f"Ошибка формата числа: {value} в строке {row}. Ожидается число.\n"
                                     row[field] = None
 
                     # Установка значения по умолчанию для поля "Не_Инвент"
@@ -675,6 +679,7 @@ def import_csv_to_db(file_path, model_name):
         "imported_file_path": file_path,
         "errors": set(errors),
         "created": created,
+        "exist": exist
     }
 
 
@@ -710,6 +715,7 @@ class ImportDBView(APIView):
             imported_file_path = import_result.get("imported_file_path")
             import_errors = import_result.get("errors")
             import_created = import_result.get("created")
+            import_exist = import_result.get("exist")
 
             # Удаляем файл после импорта
             try:
@@ -717,7 +723,7 @@ class ImportDBView(APIView):
             except Exception as e:
                 print(f"Ошибка при удалении файла: {str(e)}.")
 
-            if (import_created == 0):
+            if (import_created == 0 and import_exist == 0):
                 return Response(
                     {"error": import_errors, 'message': f'Ошибка при импорте данных. {set(import_errors)}'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR

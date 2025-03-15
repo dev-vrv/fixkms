@@ -183,20 +183,26 @@ const AssetsActions = ({ role, tab, data, setData }) => {
         setImportAlert(error);
         setImportAlertType("error");
       },
-      (success) => {
-        setImportAlert(success);
+      (data) => {
+        let timer = 3000;
+        setImportAlert(data.message);
         setImportAlertType("success");
-        fetchData("assets", "get", null, setData);
+        
+        if (data.errors.length > 0) {
+          setTimeout(() => {
+            setImportAlertType("warning");
+            setImportAlert(`Ошибки: ${data.errors.join(", ")}`);  
+          }, timer);
+          
+        }
         setTimeout(() => {
-          toggleImportFormVisibility(false);
           setImportAlert(null);
           setImportAlertType(null);
-        },
-          2000);
+          toggleImportFormVisibility();
+          fetchData("assets", "get", null, setData);
+        }, data.errors.length > 0 ? timer * 2.2 : timer);
       }
-    ).then(response => {
-      console.log(response);
-    });
+    );
   };
 
   const handleLogout = async () => {
