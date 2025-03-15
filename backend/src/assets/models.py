@@ -116,6 +116,9 @@ class Equipments(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAsset
     def __str__(self):
         return self.Серийный_Номер if self.Серийный_Номер else 'Серийный номер не указан'
 
+    class Meta:
+        verbose_name_plural = "Оборудование"
+        ordering = ["-pk"]
 
 class Programs(BaseAssetA, BaseAssetB, BaseAssetC):
     Название = models.CharField(max_length=255, blank=True, null=True)
@@ -131,6 +134,9 @@ class Programs(BaseAssetA, BaseAssetB, BaseAssetC):
     def __str__(self):
         return self.Название if self.Название else 'Название не указано'
 
+    class Meta:
+        verbose_name_plural = "Программы"
+        ordering = ["-pk"]
 
 class Components(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAssetTMPN):
     Серийный_Номер_Связанного_Объекта = models.CharField(
@@ -145,6 +151,9 @@ class Components(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAsset
     def __str__(self):
         return self.Серийный_Номер_Связанного_Объекта if self.Серийный_Номер_Связанного_Объекта else 'Серийный номер не указан'
 
+    class Meta:
+        verbose_name_plural = "Комплектующие"
+        ordering = ["-pk"]
 
 class Consumables(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetTMPN):
     Количество = models.IntegerField(blank=True, null=True)
@@ -159,6 +168,9 @@ class Consumables(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetTMPN):
     def __str__(self):
         return 'Серийный номер не указан' if not self.Серийный_Номер_Связанного_Объекта else self.Серийный_Номер_Связанного_Объекта
 
+    class Meta:
+        verbose_name_plural = "Расходные материалы"
+        ordering = ["-pk"]
 
 class Repairs(BaseAssetA, BaseAssetWrranty, BaseAssetTMPN):
     Номер = models.CharField(max_length=255, blank=True, null=True)
@@ -184,6 +196,9 @@ class Repairs(BaseAssetA, BaseAssetWrranty, BaseAssetTMPN):
     def __str__(self):
         return self.Описание_Неисправности if self.Описание_Неисправности else 'Описание неисправности не указано'
 
+    class Meta:
+        verbose_name_plural = "Ремонты"
+        ordering = ["-pk"]
 
 class Movements(models.Model):
     Номер = models.CharField(max_length=255, blank=True, null=True)
@@ -244,6 +259,9 @@ class Movements(models.Model):
     def __str__(self):
         return self.Название if self.Название else 'Название не указано'
 
+    class Meta:
+        verbose_name_plural = "Перемещения"
+        ordering = ["-pk"]
 
 # custom assets
 
@@ -264,13 +282,15 @@ class CustomAssetDetails(
     def __str__(self):
         return self.Актив if self.Актив else 'Актив не указан'
 
-
 class ExportFile(models.Model):
     file = models.FileField(upload_to="uploads/")
 
     def __str__(self):
         return self.file.name if self.file.name else 'Имя файла не указано'
 
+    class Meta:
+        verbose_name_plural = "Экспортные файлы"
+        ordering = ["-pk"]
 
 # handbooks
 
@@ -295,7 +315,10 @@ class HandbookEquipments(models.Model):
     def __str__(self):
         return self.Название if self.Название else 'Название не указано'
 
-
+    class Meta:
+        verbose_name_plural = "Справочники Оборудование"
+        ordering = ["-pk"]
+    
 class HandbookPrograms(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
     Версия = models.CharField(max_length=255, blank=True, null=True)
@@ -312,6 +335,9 @@ class HandbookPrograms(models.Model):
     def __str__(self):
         return self.Название if self.Название else 'Название не указано'
 
+    class Meta:
+        verbose_name_plural = "Справочники Программы"
+        ordering = ["-pk"]
 
 class HandbookComponents(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
@@ -327,6 +353,10 @@ class HandbookComponents(models.Model):
     def __str__(self):
         return self.Название if self.Название else 'Название не указано'
 
+    class Meta:
+        verbose_name_plural = "Справочники Комплектующие"
+        ordering = ["-pk"]
+    
 
 class HandbookConsumables(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
@@ -343,6 +373,10 @@ class HandbookConsumables(models.Model):
     def __str__(self):
         return self.Название if self.Название else 'Название не указано'
 
+    class Meta:
+        verbose_name_plural = "Справочники Расходные материалы"
+        ordering = ["-pk"]
+    
 
 class HandbookCompany(models.Model):
     Компания = models.CharField(max_length=255, blank=True, null=True)
@@ -360,3 +394,7 @@ class HandbookCompany(models.Model):
 
     def __str__(self):
         return self.Компания if self.Компания else 'Компания не указана'
+    
+    class Meta:
+        verbose_name_plural = "Справочники Компании"
+        ordering = ["-pk"]

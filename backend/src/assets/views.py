@@ -55,6 +55,7 @@ def detect_encoding(file_path):
         result = chardet.detect(raw_data)
         return result['encoding']
 
+
 def is_valid_date(value, date_formats=["%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"]):
     """
     Проверяет, соответствует ли строка одному из форматов даты.
@@ -66,6 +67,7 @@ def is_valid_date(value, date_formats=["%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%
         except ValueError:
             continue
     return False
+
 
 model_mapping = {
     "equipments": Equipments,
@@ -546,7 +548,7 @@ class ExportDBView(APIView):
             except Http404 as e:
                 return Response({"error": str(e)}, status=404)
         else:
-            return Response({"detail": exported_file_path}, status=200)
+            return Response('Нет данных для экспорта', status=200)
 
 
 # Функция импорта данных из CSV в БД
@@ -594,7 +596,7 @@ def import_csv_to_db(file_path, model_name):
                                         f'Ошибка формата числа \n'
                                     )
                                     row[field] = None
-                        
+
                     try:
                         instance = model(**row)
                         instances.append(instance)
@@ -725,7 +727,8 @@ class ImportDBView(APIView):
 
             if (import_created == 0 and import_exist == 0):
                 return Response(
-                    {"error": import_errors, 'message': f'Ошибка при импорте данных. {set(import_errors)}'},
+                    {"error": import_errors,
+                        'message': f'Ошибка при импорте данных. {set(import_errors)}'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             else:
@@ -787,7 +790,8 @@ class HandbookView(APIView):
             # Преобразуем множества в списки
             result = {key: list(value) for key, value in result.items()}
             if request.user.Роль == "manager":
-                users = User.objects.filter(Организация=request.user.Организация)
+                users = User.objects.filter(
+                    Организация=request.user.Организация)
                 result['Сотрудник_Компания'] = [request.user.Организация]
                 result['Сотрудник'] = [request.user.username]
                 result['Сотрудник_Логин'] = [request.user.username]
