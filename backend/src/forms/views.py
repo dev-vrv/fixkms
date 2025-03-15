@@ -274,15 +274,14 @@ class BrokenEquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-            user = User.objects.get(username=data.get("employee_name"))
-            employee_name = f'{user.Фамилия} {user.Имя} {user.Отчество}'
-            company_name = data.get("company_name")
-            position_1 = data.get("position_1")
-            position_2 = data.get("position_2")
             signer_1_object = User.objects.get(username=data.get("signer_1"))
             signer_2_object = User.objects.get(username=data.get("signer_2"))
             signer_1 = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
             signer_2 = f'{signer_2_object.Фамилия} {signer_2_object.Имя} {signer_2_object.Отчество}'
+            employee_name = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
+            company_name = data.get("company_name")
+            position_1 = data.get("position_1")
+            position_2 = data.get("position_2")
             equipment_ids = data.get("equipment_ids", [])
             equipments = Equipments.objects.filter(id__in=equipment_ids)
 
@@ -412,15 +411,14 @@ class EquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-            user = User.objects.get(username=data.get("employee_name"))
-            employee_name = f'{user.Фамилия} {user.Имя} {user.Отчество}'
-            company_name = data.get("company_name")
-            position_1 = data.get("position_1")
-            position_2 = data.get("position_2")
             signer_1_object = User.objects.get(username=data.get("signer_1"))
             signer_2_object = User.objects.get(username=data.get("signer_2"))
             signer_1 = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
             signer_2 = f'{signer_2_object.Фамилия} {signer_2_object.Имя} {signer_2_object.Отчество}'
+            employee_name = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
+            company_name = data.get("company_name")
+            position_1 = data.get("position_1")
+            position_2 = data.get("position_2")
             equipment_data = data.get("equipment_ids", [])
 
             # Преобразуем id в числа
@@ -454,6 +452,7 @@ class EquipmentReportView(APIView):
             # Возвращаем файл пользователю
             return self.send_file(file_name)
         except Exception as e:
+            print(e)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def create_equipment_report(
@@ -562,15 +561,14 @@ class TemporaryEquipmentReportView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-            user = User.objects.get(username=data.get("employee_name"))
-            employee_name = f'{user.Фамилия} {user.Имя} {user.Отчество}'
-            company_name = data.get("company_name")
-            position_1 = data.get("position_1")
-            position_2 = data.get("position_2")
             signer_1_object = User.objects.get(username=data.get("signer_1"))
             signer_2_object = User.objects.get(username=data.get("signer_2"))
             signer_1 = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
             signer_2 = f'{signer_2_object.Фамилия} {signer_2_object.Имя} {signer_2_object.Отчество}'
+            employee_name = f'{signer_1_object.Фамилия} {signer_1_object.Имя} {signer_1_object.Отчество}'
+            company_name = data.get("company_name")
+            position_1 = data.get("position_1")
+            position_2 = data.get("position_2")
             equipment_data = data.get("equipment_ids", [])
 
             # Преобразование строковых ID в числовые

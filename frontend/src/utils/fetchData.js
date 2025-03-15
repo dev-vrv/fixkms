@@ -151,7 +151,7 @@ export const fetchExportData = async (url, data = null, setFetchError = null, se
 			const fetchError = error.response.data.detail;
 			console.error("Ошибка ответа:", error.response.data);
 			setFetchError?.(fetchError || "Ошибка сервера.");
-			alert("Ошибка при экспорте данных.", error.response.data);
+			alert("Нет данных для экспорта", error.response.data);
 		} else {
 			console.error("Ошибка сети или сервера:", error.message);
 			setFetchError?.("Ошибка сети или сервера.");

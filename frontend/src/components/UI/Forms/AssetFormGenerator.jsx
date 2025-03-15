@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { fetchForm } from "../../../utils/fetchData";
 import MyButton from "../Button/MyButton";
 import SelectField from "../Select/Select";
@@ -350,6 +350,15 @@ const handbookFieldsMap = {
         ]
     }
 };
+const getModelsByType = (obj, type) => {
+    const result = [];
+    Object.keys(obj).forEach((key) => {
+        if (obj[key].Тип === type) {
+            result.push(obj[key].Модель);
+        }
+    });
+    return result;
+}
 
 
 const fieldsTypesMap = {
@@ -374,9 +383,8 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
     const [alertStatus, setAlertStatus] = useState("");
     const [userRole, setUserRole] = useState(null);
     const [formFields, setFormFields] = useState([]);
-
+    const [modelOptions, setModelOptions] = useState(null);
     const fieldsMap = isHandbook ? handbookFieldsMap : baseFieldsMap;
-
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
@@ -446,6 +454,15 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
         setAlertMessage(null);
     };
 
+    const handleTypeChange = (event) => {
+        if (event.target.value && event.target.value !== "") {
+            setModelOptions(getModelsByType(data['handbooks'][asset], event.target.value));
+        }
+        else {
+            setModelOptions([]);
+        }
+    };
+
     if (!formFields.length) return <Loader />;
 
     return (
@@ -475,12 +492,31 @@ const AssetFormGenerator = ({ onClose, title, asset, options, endPoint, data, me
                         <label className="p-1 text-capitalize">
                             {name.replace(/_/g, " ").replace("id", "ID").replace("username", "Логин").replace("email", "Почта").replace("password", "Пароль")}
                         </label>
-                        {options && options[name] ? (
+                        {options && options[name] && name !== "Модель" ? (
                             <SelectField
                                 name={name}
                                 options={options[name]}
-                                value={formData[name] || data?.[name] || ""} // Добавил data?.[name]
-                                onChange={(event) => handleSelectChange(name, event)}
+                                value={formData[name] || data?.[name] || ""}
+                                onChange={(event) => {
+                                    handleSelectChange(name, event);
+                                    if (name === "Тип") {
+                                        handleTypeChange(event);
+                                    }
+                                }}
+                            />
+                        ) : options && options[name] && name === "Модель" ? (
+                            <SelectField
+                                name={name}
+                                options={!modelOptions?.length ? [] : modelOptions}
+                                labelText={`${!modelOptions?.length ? "Сперва выберите тип" : "Выберите модель"}`}
+                                value={formData[name] || data?.[name] || ""}
+                                className={`${!modelOptions?.length ? "disabled" : ""}`}
+                                onChange={(event) => {
+                                    handleSelectChange(name, event);
+                                    if (name === "Тип") {
+                                        handleTypeChange(event);
+                                    }
+                                }}
                             />
                         ) : (
                             <input

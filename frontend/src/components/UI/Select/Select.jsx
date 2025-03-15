@@ -1,7 +1,7 @@
-const SelectField = ({ name, options, onChange, value }) => {
+const SelectField = ({ name, options, onChange, value, className, labelText='Выберите значение' }) => {
   return (
-    <select name={name} onChange={onChange} value={value} className="form-control">
-      <option value="">Выберите значение</option>
+    <select name={name} onChange={onChange} value={value} className={`form-control ${className}`}>
+      <option value="">{labelText}</option>
       {options.map((option) => (
         <option key={option} value={option}>
           {option}

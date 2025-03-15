@@ -285,3 +285,8 @@ button:hover {
 	justify-content: center;
 	position: relative;
 }
+
+.form-control.disabled {
+	background-color: #d7d7d7;
+	pointer-events: none !important;
+}

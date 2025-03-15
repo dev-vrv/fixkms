@@ -548,7 +548,7 @@ class ExportDBView(APIView):
             except Http404 as e:
                 return Response({"error": str(e)}, status=404)
         else:
-            return Response('Нет данных для экспорта', status=200)
+            return Response({"error": exported_file_path}, status=400)
 
 
 # Функция импорта данных из CSV в БД

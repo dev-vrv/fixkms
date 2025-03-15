@@ -371,6 +371,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
             onClose={toggleFormVisibility}
             options={optionsData}
             asset={tab}
+            data={data}
             title={`Добавить ${translateAssets(tab)}`}
             endPoint={FormEndpointsMap[tab]}
           />}

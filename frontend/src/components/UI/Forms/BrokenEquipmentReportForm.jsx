@@ -15,8 +15,6 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
     });
 
     const [optionsData, setOptionsData] = useState(null);
-    const users = data.users || [];
-
 
     useEffect(() => {
         setOptionsData(null);
@@ -47,23 +45,6 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
     return (
         <form className="d-flex p-3 gap-3 flex-column form-container">
             <h2>Создание акта приема неисправного оборудования</h2>
-            {/* Сотрудник */}
-            <div className="d-flex flex-column gap-2">
-                <label className="form-label">Сотрудник</label>
-                <select
-                    name="employee_name"
-                    className="form-control"
-                    value={formData.employee_name}
-                    onChange={handleChange}
-                >
-                    <option value="">Выберите сотрудника</option>
-                    {users.map((user) => (
-                        <option key={user.id} value={user.username}>
-                            {user.Фамилия} {user.Имя} {user.Отчество} ({user.username})
-                        </option>
-                    ))}
-                </select>
-            </div>
 
             {/* Компания */}
             <div className="d-flex flex-column gap-2">
@@ -120,12 +101,21 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
                     value={formData.signer_1}
                     onChange={handleChange}
                 >
-                    <option value="">Выберите компанию</option>
+                    <option value="">Выберите пользователя</option>
                     {optionsData && optionsData.Сотрудник_Логин.map((signer, index) => {
                         return (
-                            <option key={index} value={signer}>
-                                {signer}
-                            </option>
+                            data.users.map((user) => {
+                                if (user.username === signer) {
+                                    return (
+                                        <option key={index} value={signer}>
+                                            {user.Фамилия + ' ' + user.Имя + ' ' + user.Отчество}
+                                        </option>
+                                    )
+                                }
+                                else {
+                                    return null;
+                                }
+                            })
                         )
                     })}
                 </select>
@@ -140,15 +130,31 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
                     value={formData.signer_2}
                     onChange={handleChange}
                 >
-                    <option value="">Выберите компанию</option>
+                    <option value="">Выберите пользователя</option>
                     {optionsData && optionsData.Сотрудник_Логин.map((signer, index) => {
                         return (
-                            <option key={index} value={signer}>
-                                {signer}
-                            </option>
+                            data.users.map((user) => {
+                                if (user.username === signer) {
+                                    return (
+                                        <option key={index} value={signer}>
+                                            {user.Фамилия + ' ' + user.Имя + ' ' + user.Отчество}
+                                        </option>
+                                    )
+                                }
+                                else {
+                                    return null;
+                                }
+                            })
                         )
                     })}
                 </select>
+            </div>
+
+
+            {/* Кнопки */}
+            <div className="d-flex gap-3 flex-wrap">
+                <MyButton text={"Печать"} className="w-fit" onClick={handleCreateReport} />
+                <MyButton text={"Отмена"} className="w-fit" onClick={() => setShowBrokenEquipmentReportForm(false)} />
             </div>
 
             {/* Выбор оборудования */}
@@ -163,12 +169,6 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
                         )
                     ))}
                 </div>
-            </div>
-
-            {/* Кнопки */}
-            <div className="d-flex gap-3 flex-wrap">
-                <MyButton text={"Печатные формы"} className="w-fit" onClick={handleCreateReport} />
-                <MyButton text={"Отмена"} className="w-fit" onClick={() => setShowBrokenEquipmentReportForm(false)} />
             </div>
         </form>
     );
