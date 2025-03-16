@@ -185,12 +185,12 @@ const relationsMaps = {
     default: {
         Тип: ['Производитель', 'Модель'],
         Производитель: ['Модель'],
-        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон']
+        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон', 'Местоположение'],
     },
     programs: {
         Производитель: ['Модель', 'Название'],
         Название: ['Версия'],
-        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон']
+        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон', 'Местоположение'],
     }
 };
 
@@ -246,10 +246,10 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
         } else {
             setDisabled(false);
         }
-    
+
         const optionsFromRelation = [];
         let shouldDisable = false;
-    
+                
         Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
             if (values.includes(name)) {
                 if (!formData[key] || formData[key] === '') {
@@ -258,32 +258,53 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 } else {
                     setDefaultText('Выберите значение');
                 }
-    
-                // --- Фильтрация с учетом всех зависимостей ---
-                fullData['handbooks'][asset]?.forEach((item) => {
-                    let isValid = true;
-    
-                    // Проверяем ВСЕ предыдущие связи
-                    Object.keys(relationsFieldsMaps).forEach((parentKey) => {
-                        if (relationsFieldsMaps[parentKey].includes(name)) {
-                            if (formData[parentKey] && item[parentKey] !== formData[parentKey]) {
-                                isValid = false; // Если один из предков не совпадает — отклоняем
+
+                if (key !== 'Компания' && !relationsFieldsMaps['Компания'].includes(name)) {
+                    fullData['handbooks'][asset]?.forEach((item) => {
+                        let isValid = true;
+                    
+                        // Проверяем всю цепочку зависимостей
+                        Object.keys(relationsFieldsMaps).forEach((parentKey) => {
+                            if (relationsFieldsMaps[parentKey].includes(name)) {
+                                if (formData[parentKey] && item[parentKey] !== formData[parentKey]) {
+                                    isValid = false; // Если один из предков не совпадает — отклоняем
+                                }
                             }
+                        });
+                    
+                        // Если все зависимости соблюдены — добавляем в список
+                        if (isValid && item[name] !== '') {
+                            optionsFromRelation.push(item[name]);
                         }
                     });
-    
-                    if (isValid) {
-                        optionsFromRelation.push(item[name]);
+                } else {
+                    if (name === 'Сотрудник_Логин') {
+                        fullData['users'].forEach((user) => {
+                            if (user['Организация'] === formData['Компания']) {
+                                optionsFromRelation.push(user['username']);
+                            }
+                        });
+                    } else if (name === 'Сотрудник') {
+                        fullData['users'].forEach((user) => {
+                            if (user['Организация'] === formData['Компания']) {
+                                optionsFromRelation.push(user['Фамилия'] ? `${user['Фамилия']} ${user['Имя']} ${user['Отчество']}` : user['username']);
+                            }
+                        });
+                    } else {
+                        fullData['handbooks']['company'].forEach((item) => {
+                            if (item['Компания'] === formData['Компания'] && item[name] !== '') {
+                                optionsFromRelation.push(item[name]);
+                            }
+                        });
                     }
-                });
-    
+                }
+
                 setRelationOptions(optionsFromRelation);
             }
         });
-    
+
         setDisabled(shouldDisable);
     }, [name, formData, fullData, asset, relationsFieldsMaps, setFormData]);
-    
 
     return (
         <div className="d-flex flex-column gap-1">
