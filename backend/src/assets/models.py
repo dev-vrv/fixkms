@@ -362,6 +362,7 @@ class HandbookComponents(models.Model):
 
 class HandbookConsumables(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
+    Производитель = models.CharField(max_length=255, blank=True, null=True)
     Количество = models.IntegerField(blank=True, null=True)
     Сумма = models.FloatField(blank=True, null=True)
     Серийный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)

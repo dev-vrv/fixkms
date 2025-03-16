@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { fetchForm } from "../../../utils/fetchData";
 import MyButton from "../Button/MyButton";
 import SelectInput from "../Select/Select";
@@ -163,8 +163,8 @@ const handbookFieldsMap = {
         "Производитель",
     ],
     consumables: [
-        "Название",
         "Тип",
+        "Производитель",
         "Модель",
     ],
     company: [

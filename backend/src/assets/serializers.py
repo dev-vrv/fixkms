@@ -249,8 +249,8 @@ class HandbookConsumablesSerializer(serializers.ModelSerializer):
         model = HandbookConsumables
         fields = [
             "id",
-            "Название",
             "Тип",
+            "Производитель",
             "Модель",
         ]
 
