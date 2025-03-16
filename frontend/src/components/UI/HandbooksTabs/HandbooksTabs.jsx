@@ -14,7 +14,7 @@ const tabsNamesMap = {
 const tabs = Object.keys(tabsNamesMap);
 
 const HandbooksTabs = ({ data, sync, role }) => {
-    const [activeTab, setActiveTab] = useState("Расходники");
+    const [activeTab, setActiveTab] = useState("Оборудование");
     const [addFormVisible, setAddFormVisible] = useState(false);
 
     const tabData = data[tabsNamesMap[activeTab]];
