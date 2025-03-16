@@ -6,8 +6,8 @@ const SelectInput = ({ name, options, onChange, className, defaultValue, default
     defaultValue = '';
   }
 
-  options = [...new Set(options)].filter((option) => option !== null && option !== '');
-
+  options = [...new Set(options)].filter((option) => option !== null && option !== '' && option !== defaultValue);
+  console.log(options);
   return (
     <select name={name} onChange={onChange} defaultValue={defaultValue} className={`form-control ${className}`}>
       <option value={defaultValue}>{defaultText}</option>
