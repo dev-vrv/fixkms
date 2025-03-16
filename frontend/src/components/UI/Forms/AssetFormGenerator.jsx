@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { fetchForm } from "../../../utils/fetchData";
 import MyButton from "../Button/MyButton";
 import SelectInput from "../Select/Select";
@@ -183,7 +183,7 @@ const handbookFieldsMap = {
 
 const relationsMaps = {
     default: {
-        Тип: ['Производитель'],
+        Тип: ['Производитель', 'Модель'],
         Производитель: ['Модель'],
         Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон']
     },
@@ -232,34 +232,28 @@ const getBlockingField = (field, formData, asset) => {
     return null;
 };
 
-
-
-const SelectField = ({ name, options, onChange, defaultValue, fullData, formData, asset }) => {
+const SelectField = ({ name, options, onChange, defaultValue, fullData, formData, asset, setFormData }) => {
     const [disabled, setDisabled] = useState(false);
     const [relationOptions, setRelationOptions] = useState(null);
     const [defaultText, setDefaultText] = useState('Выберите значение');
-
+    
     const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
-
+    
     useEffect(() => {
         const blockingField = getBlockingField(name, formData, asset);
-
         if (blockingField) {
             setDisabled(true);
-            setDefaultText(`Сначала заполните поле - ${blockingField.replace(/_/g, " ")}`);
         } else {
             setDisabled(false);
-            setDefaultText('Выберите значение');
         }
 
         const optionsFromRelation = [];
         let shouldDisable = false;
-
+                
         Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
             if (values.includes(name)) {
                 if (!formData[key] || formData[key] === '') {
                     shouldDisable = true;
-                    setDefaultText(`Сначала заполните поле - ${key.replace(/_/g, " ")}`);
                     return;
                 } else {
                     setDefaultText('Выберите значение');
@@ -298,7 +292,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
         });
 
         setDisabled(shouldDisable);
-    }, [name, formData, fullData, asset, relationsFieldsMaps]);
+    }, [name, formData, fullData, asset, relationsFieldsMaps, setFormData]);
 
     return (
         <div className="d-flex flex-column gap-1">
@@ -310,7 +304,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 options={relationOptions ? relationOptions : options}
                 onChange={onChange}
                 defaultValue={defaultValue}
-                className={disabled ? "disabled" : ""}
+                disabled={disabled}
                 defaultText={defaultText}
             />
         </div>
@@ -439,6 +433,7 @@ const AssetFormGenerator = ({
                                 fullData={fullData}
                                 formData={formData}
                                 asset={asset}
+                                setFormData={setFormData}
                             />
                         )
                     }
