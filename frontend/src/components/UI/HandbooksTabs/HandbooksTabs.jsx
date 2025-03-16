@@ -18,7 +18,7 @@ const HandbooksTabs = ({ data, sync, role }) => {
     const [addFormVisible, setAddFormVisible] = useState(false);
 
     const tabData = data[tabsNamesMap[activeTab]];
-    console.log(tabData);
+
     return (
         <div>
             <nav className="border-bottom">
