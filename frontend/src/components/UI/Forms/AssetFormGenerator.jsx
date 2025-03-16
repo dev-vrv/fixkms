@@ -238,7 +238,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
     const [defaultText, setDefaultText] = useState('Выберите значение');
     
     const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
-    
+
     useEffect(() => {
         const blockingField = getBlockingField(name, formData, asset);
         if (blockingField) {
@@ -246,10 +246,10 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
         } else {
             setDisabled(false);
         }
-
+    
         const optionsFromRelation = [];
         let shouldDisable = false;
-                
+    
         Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
             if (values.includes(name)) {
                 if (!formData[key] || formData[key] === '') {
@@ -258,41 +258,32 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 } else {
                     setDefaultText('Выберите значение');
                 }
-
-                if (key !== 'Компания' && !relationsFieldsMaps['Компания'].includes(name)) {
-                    fullData['handbooks'][asset]?.forEach((item) => {
-                        if (item[key] === formData[key]) {
-                            optionsFromRelation.push(item[name]);
+    
+                // --- Фильтрация с учетом всех зависимостей ---
+                fullData['handbooks'][asset]?.forEach((item) => {
+                    let isValid = true;
+    
+                    // Проверяем ВСЕ предыдущие связи
+                    Object.keys(relationsFieldsMaps).forEach((parentKey) => {
+                        if (relationsFieldsMaps[parentKey].includes(name)) {
+                            if (formData[parentKey] && item[parentKey] !== formData[parentKey]) {
+                                isValid = false; // Если один из предков не совпадает — отклоняем
+                            }
                         }
                     });
-                } else {
-                    if (name === 'Сотрудник_Логин') {
-                        fullData['users'].forEach((user) => {
-                            if (user['Организация'] === formData['Компания']) {
-                                optionsFromRelation.push(user['username']);
-                            }
-                        });
-                    } else if (name === 'Сотрудник') {
-                        fullData['users'].forEach((user) => {
-                            if (user['Организация'] === formData['Компания']) {
-                                optionsFromRelation.push(user['Фамилия'] ? `${user['Фамилия']} ${user['Имя']} ${user['Отчество']}` : user['username']);
-                            }
-                        });
-                    } else {
-                        fullData['handbooks']['company'].forEach((item) => {
-                            if (item['Компания'] === formData['Компания'] && item[name] !== '') {
-                                optionsFromRelation.push(item[name]);
-                            }
-                        });
+    
+                    if (isValid) {
+                        optionsFromRelation.push(item[name]);
                     }
-                }
-
+                });
+    
                 setRelationOptions(optionsFromRelation);
             }
         });
-
+    
         setDisabled(shouldDisable);
     }, [name, formData, fullData, asset, relationsFieldsMaps, setFormData]);
+    
 
     return (
         <div className="d-flex flex-column gap-1">
@@ -441,7 +432,7 @@ const AssetFormGenerator = ({
                 })}
 
                 <div className="d-flex gap-2 w-100">
-                    <MyButton text={continueButtonText} onClick={() => console.log('submit')} style={{ width: "fit-content" }} />
+                    <MyButton text={continueButtonText} style={{ width: "fit-content" }} />
                     <MyButton text="Отмена" onClick={onClose} style={{ width: "fit-content" }} />
                 </div>
             </form>
