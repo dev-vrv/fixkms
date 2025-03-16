@@ -34,7 +34,7 @@ const checkDateExpired = (date) => {
 	}
 };
 
-const MyTable = ({ fullData, tab, role, isHandbook }) => {
+const MyTable = ({ fullData, tab, role, isHandbook, assetsData = null }) => {
 	const [editingRow, setEditingRow] = useState(null);
 	const [formData, setFormData] = useState({});
 	const [search, setSearch] = useState("");
@@ -219,7 +219,6 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 					))}
 				</tbody>
 			</table>
-
 		)
 	};
 
@@ -239,20 +238,20 @@ const MyTable = ({ fullData, tab, role, isHandbook }) => {
 	}
 	const Change = () => {
 		return (
-			<div className="form-container">
-				<AssetFormGenerator
-					onClose={() => setEditingRow(null)}
-					title={`Изменение ${translateAssets(tab)} ID: ${editingRow.id}`}
-					asset={tab} endPoint={urls[tab].update}
-					data={editingRow}
-					options={!isHandbook ? optionsData : null}
-					method="put"
-					continueButtonText="Сохранить изменения"
-					isHandbook={isHandbook}
-				/>
-			</div>
+			<AssetFormGenerator
+				onClose={() => setEditingRow(null)}
+				title={`Изменение ${translateAssets(tab)} ID: ${editingRow.id}`}
+				asset={tab} endPoint={urls[tab].update}
+				options={!isHandbook ? optionsData : null}
+				method="put"
+				continueButtonText="Сохранить изменения"
+				fullData={assetsData}
+				isHandbook={isHandbook}
+				editingRow={editingRow}
+			/>
 		)
 	}
+
 
 	return (
 		<div className="table-container">

@@ -325,6 +325,7 @@ class HandbookPrograms(models.Model):
     Ключ_Продукта = models.CharField(max_length=255, blank=True, null=True)
     Код_Активации = models.CharField(max_length=255, blank=True, null=True)
     Дистрибутив = models.CharField(max_length=255, blank=True, null=True)
+    Производитель = models.CharField(max_length=255, blank=True, null=True)
     Номер_Мульти_Лицензии = models.CharField(max_length=255, blank=True, null=True)
     Количество_Мульти_Лицензий = models.IntegerField(blank=True, null=True)
     Лиценизя_До = models.DateField(blank=True, null=True)
@@ -341,6 +342,7 @@ class HandbookPrograms(models.Model):
 
 class HandbookComponents(models.Model):
     Название = models.CharField(max_length=255, blank=True, null=True)
+    Производитель = models.CharField(max_length=255, blank=True, null=True)
     Серийный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Стоимость = models.FloatField(blank=True, null=True)

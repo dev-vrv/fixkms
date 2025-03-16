@@ -52,7 +52,7 @@ export const fetchData = async (
 			},
 		});
 
-		console.log("Успех:", response.data);
+		// console.log("Успех:", response.data);
 
 		if (response.data["user"]) {
 			localStorage.setItem("user", JSON.stringify(response.data["user"]));
@@ -106,7 +106,7 @@ export const fetchImportData = async (url, file, modelName, setFetchError = null
 			},
 		});
 
-		console.log("Успех:", response.data);
+		// console.log("Успех:", response.data);
 
 		if (response.status === 200 || response.status < 300) {
 			setFetchSuccess?.(response.data);
@@ -133,7 +133,7 @@ export const fetchExportData = async (url, data = null, setFetchError = null, se
 			responseType: "blob",
 		});
 
-		console.log("Успех:", response.data);
+		// console.log("Успех:", response.data);
 
 		if (response.status === 200) {
 			const link = document.createElement("a");
@@ -192,7 +192,7 @@ export const fetchForm = async (url, method, data = null) => {
 			window.location.reload();
 		}
 
-		console.log("Успех:", response.data);
+		// console.log("Успех:", response.data);
 		return { status: response.status, data: response.data }; // ✅ Возвращаем статус и JSON
 	} catch (error) {
 		if (error.response) {

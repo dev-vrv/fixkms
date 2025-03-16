@@ -7,7 +7,7 @@ from .models import (
 
 @admin.register(Equipments)
 class EquipmentsAdmin(admin.ModelAdmin):
-    list_display = ('Серийный_Номер', 'Компания', 'Местоположение', 'Статус', 'Производитель')
+    list_display = ('pk', 'Серийный_Номер', 'Компания', 'Местоположение', 'Статус', 'Производитель')
     search_fields = ('Серийный_Номер', 'Компания', 'Производитель')
     list_filter = ('Статус', 'Компания')
     
@@ -15,7 +15,7 @@ class EquipmentsAdmin(admin.ModelAdmin):
 
 @admin.register(Programs)
 class ProgramsAdmin(admin.ModelAdmin):
-    list_display = ('Название', 'Версия', 'Ключ_Продукта', 'Лиценизя_До')
+    list_display = ('pk', 'Название', 'Версия', 'Ключ_Продукта', 'Лиценизя_До')
     search_fields = ('Название', 'Версия', 'Ключ_Продукта')
     list_filter = ('Лиценизя_До',)
     
@@ -23,7 +23,7 @@ class ProgramsAdmin(admin.ModelAdmin):
 
 @admin.register(Components)
 class ComponentsAdmin(admin.ModelAdmin):
-    list_display = ('Серийный_Номер_Связанного_Объекта', 'Компания', 'Статус', 'Производитель')
+    list_display = ('pk', 'Серийный_Номер_Связанного_Объекта', 'Компания', 'Статус', 'Производитель')
     search_fields = ('Серийный_Номер_Связанного_Объекта', 'Компания', 'Производитель')
     list_filter = ('Статус', 'Компания')
     
@@ -31,7 +31,7 @@ class ComponentsAdmin(admin.ModelAdmin):
 
 @admin.register(Consumables)
 class ConsumablesAdmin(admin.ModelAdmin):
-    list_display = ('Количество', 'Сумма', 'Компания', 'Местоположение')
+    list_display = ('pk', 'Количество', 'Сумма', 'Компания', 'Местоположение')
     search_fields = ('Компания', 'Местоположение')
     list_filter = ('Компания',)
     
@@ -39,7 +39,7 @@ class ConsumablesAdmin(admin.ModelAdmin):
 
 @admin.register(Repairs)
 class RepairsAdmin(admin.ModelAdmin):
-    list_display = ('Номер', 'Дата_Поломки', 'Описание_Неисправности', 'Ремонт_Стоимость')
+    list_display = ('pk', 'Номер', 'Дата_Поломки', 'Описание_Неисправности', 'Ремонт_Стоимость')
     search_fields = ('Номер', 'Описание_Неисправности')
     list_filter = ('Дата_Поломки', 'Ремонт_Стоимость')
     

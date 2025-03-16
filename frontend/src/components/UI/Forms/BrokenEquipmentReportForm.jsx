@@ -20,7 +20,6 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
         setOptionsData(null);
         fetchForm(`assets/handbooks/equipments`, "get", null, null).then(response => {
             setOptionsData(response.data);
-            console.log(response.data);
         });
     }
         , [setOptionsData]);

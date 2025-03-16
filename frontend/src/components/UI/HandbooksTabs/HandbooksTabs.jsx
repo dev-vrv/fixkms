@@ -5,8 +5,8 @@ import AssetFormGenerator from "../Forms/AssetFormGenerator";
 
 const tabsNamesMap = {
     "Оборудование": "equipments",
-    "Программы": "programs",
     "Комплектующие": "components",
+    "Программы": "programs",
     "Расходники": "consumables",
     "Компании": "company",
 }

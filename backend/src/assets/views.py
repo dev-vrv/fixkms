@@ -451,7 +451,7 @@ class AssetsListView(APIView):
         }
 
         # Добавляем справочники и пользователей для администратора
-        if user.Роль == "admin":
+        if user.Роль == "admin" or user.Роль == 'manager':
             data['users'] = UserSerializer(User.objects.all(), many=True).data
             data['handbooks'] = {
                 "equipments": HandbookEquipmentsSerializer(HandbookEquipments.objects.all(), many=True).data,
@@ -468,6 +468,8 @@ class AssetsListView(APIView):
 def export_assets_to_csv(file_path, model_name, pks=None):
     model = model_mapping.get(model_name.lower())
     field_names = fields_mapping.get(model_name.lower())
+    
+    print(pks)
 
     if model and field_names:
         if pks and len(pks) > 0:
@@ -532,7 +534,6 @@ class ExportDBView(APIView):
     def post(self, request, *args, **kwargs):
         model_name = request.data.get("name")
         pks = request.data.get("pks")
-
         if not model_name:
             return Response({"error": "Название актива не указано."}, status=400)
 
@@ -548,6 +549,7 @@ class ExportDBView(APIView):
             except Http404 as e:
                 return Response({"error": str(e)}, status=404)
         else:
+            print(exported_file_path)
             return Response({"error": exported_file_path}, status=400)
 
 
@@ -796,8 +798,7 @@ class HandbookView(APIView):
                 result['Сотрудник'] = [request.user.username]
                 result['Сотрудник_Логин'] = [request.user.username]
             else:
-                result['Сотрудник_Логин'] = [item['username']
-                                             for item in User.objects.all().values()]
+                result['Сотрудник_Логин'] = [item['username'] for item in User.objects.all().values()]
         else:
             result = {
                 'Роль': ['admin', 'manager', 'user'],

@@ -137,11 +137,15 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     const selectInputs = document.querySelectorAll(`[data-export-select-asset="${tab}"]`);
     selectInputs?.forEach((input) => {
       if (input.checked) {
-        pks.push(input.getAttribute("data-export-select"));
+        pks.push(Number(input.getAttribute("data-export-select")));
       }
     });
 
-    fetchExportData("assets/export", { name: tab, pks: pks });
+    if (pks.length === 0) {
+      alert("Выберите хотя бы один элемент  !");
+      return;
+    }
+    fetchExportData("assets/export", { name: tab, pks: pks }, null, null, "csv", tab);
   };
 
   const toggleFormVisibility = () => {
@@ -359,6 +363,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     )
   };
 
+
   return (
     <>
       <div className="p-3 px-3 border-bottom d-flex justify-content-between gap-3">
@@ -368,12 +373,12 @@ const AssetsActions = ({ role, tab, data, setData }) => {
       {formVisible && (
         <div className="p-3 border rounded form-container">
           {<AssetFormGenerator
+            title={`Добавить ${translateAssets(tab)}`}
             onClose={toggleFormVisibility}
             options={optionsData}
-            asset={tab}
-            data={data}
-            title={`Добавить ${translateAssets(tab)}`}
             endPoint={FormEndpointsMap[tab]}
+            asset={tab}
+            fullData={data}
           />}
         </div>
       )}
@@ -428,7 +433,7 @@ const Assets = () => {
             data={data}
             setData={setData}
           />
-          <MyTable fullData={data[tab]} tab={tab} role={role} />
+          <MyTable fullData={data[tab]} tab={tab} role={role} assetsData={data} />
         </>
       )}
       {!data && <Loader />}

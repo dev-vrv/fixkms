@@ -229,7 +229,7 @@ class HandbookProgramsSerializer(serializers.ModelSerializer):
             "id",
             "Название",
             "Версия",
-            "Дистрибутив",
+            "Производитель",
         ]
 
 
@@ -238,7 +238,7 @@ class HandbookComponentsSerializer(serializers.ModelSerializer):
         model = HandbookComponents
         fields = [
             "id",
-            "Название",
+            "Производитель",
             "Тип",
             "Модель",
         ]
