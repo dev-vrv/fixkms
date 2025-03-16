@@ -107,6 +107,7 @@ const FormEndpointsMap = {
   programs: "assets/programs",
   components: "assets/components",
   consumables: "assets/consumables",
+  repairs: "assets/repairs",
   users: "auth/users/create",
 }
 
@@ -364,12 +365,12 @@ const AssetsActions = ({ role, tab, data, setData }) => {
   };
 
 
+  console.log(tab)
   return (
     <>
       <div className="p-3 px-3 border-bottom d-flex justify-content-between gap-3">
         <ActionsButtons />
       </div>
-
       {formVisible && (
         <div className="p-3 border rounded form-container">
           {<AssetFormGenerator

@@ -185,12 +185,12 @@ const relationsMaps = {
     default: {
         Тип: ['Производитель', 'Модель'],
         Производитель: ['Модель'],
-        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон', 'Местоположение'],
+        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон']
     },
     programs: {
         Производитель: ['Модель', 'Название'],
         Название: ['Версия'],
-        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон', 'Местоположение'],
+        Компания: ['Сотрудник', 'Сотрудник_Логин', 'Сотрудник_Компания', 'Сотрудник_Подразделение', 'Сотрудник_Офис', 'Сотрудник_Должность', 'Сотрудник_Телефон']
     }
 };
 
@@ -238,7 +238,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
     const [defaultText, setDefaultText] = useState('Выберите значение');
     
     const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
-
+    
     useEffect(() => {
         const blockingField = getBlockingField(name, formData, asset);
         if (blockingField) {
@@ -261,19 +261,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
 
                 if (key !== 'Компания' && !relationsFieldsMaps['Компания'].includes(name)) {
                     fullData['handbooks'][asset]?.forEach((item) => {
-                        let isValid = true;
-                    
-                        // Проверяем всю цепочку зависимостей
-                        Object.keys(relationsFieldsMaps).forEach((parentKey) => {
-                            if (relationsFieldsMaps[parentKey].includes(name)) {
-                                if (formData[parentKey] && item[parentKey] !== formData[parentKey]) {
-                                    isValid = false; // Если один из предков не совпадает — отклоняем
-                                }
-                            }
-                        });
-                    
-                        // Если все зависимости соблюдены — добавляем в список
-                        if (isValid && item[name] !== '') {
+                        if (item[key] === formData[key]) {
                             optionsFromRelation.push(item[name]);
                         }
                     });
@@ -453,7 +441,7 @@ const AssetFormGenerator = ({
                 })}
 
                 <div className="d-flex gap-2 w-100">
-                    <MyButton text={continueButtonText} style={{ width: "fit-content" }} />
+                    <MyButton text={continueButtonText} onClick={() => console.log('submit')} style={{ width: "fit-content" }} />
                     <MyButton text="Отмена" onClick={onClose} style={{ width: "fit-content" }} />
                 </div>
             </form>
