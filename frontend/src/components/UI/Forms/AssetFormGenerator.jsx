@@ -211,7 +211,6 @@ const BaseField = ({ name, value, onChange }) => {
             </label>
             <input type={inputType} className="form-control" onChange={onChange} defaultValue={value ? value : ''} name={name} />
         </div>
-
     )
 }
 
@@ -331,6 +330,8 @@ const AssetFormGenerator = ({
 
     const formFields = isHandbook ? handbookFieldsMap[asset] : baseFieldsMap[asset]
     const optionsFormFields = options ? options : {}
+    const user = JSON.parse(localStorage.getItem("user"));
+    const onlyAdminFields = ["Компания"]
 
     const handleSubmit = async () => {
         try {
@@ -423,6 +424,11 @@ const AssetFormGenerator = ({
             }}>
                 {formFields.map((name) => {
                     if (Object.keys(optionsFormFields).includes(name)) {
+
+                        if (onlyAdminFields.includes(name) && user.role !== "admin") {
+                            return null;
+                        }
+
                         return (
                             <SelectField
                                 key={name}
