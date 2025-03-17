@@ -110,26 +110,15 @@ const TemporaryEquipmentReportForm = ({ showTemporaryEquipmentReportForm, setSho
                 <select
                     name="signer_1"
                     className="form-control"
-                    value={formData.signer_1}
+                    value={formData.signer_1} // убедимся, что value привязан к formData
                     onChange={handleChange}
                 >
                     <option value="">Выберите пользователя</option>
-                    {optionsData && optionsData.Сотрудник_Логин.map((signer, index) => {
-                        return (
-                            data.users.map((user) => {
-                                if (user.username === signer) {
-                                    return (
-                                        <option key={index} value={signer}>
-                                            {user.Фамилия + ' ' + user.Имя + ' ' + user.Отчество}
-                                        </option>
-                                    )
-                                }
-                                else {
-                                    return null;
-                                }
-                            })
-                        )
-                    })}
+                    {data.users.map((u) => (
+                        <option key={u.username} value={u.username}>
+                            {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
+                        </option>
+                    ))}
                 </select>
             </div>
 
@@ -143,22 +132,11 @@ const TemporaryEquipmentReportForm = ({ showTemporaryEquipmentReportForm, setSho
                     onChange={handleChange}
                 >
                     <option value="">Выберите пользователя</option>
-                    {optionsData && optionsData.Сотрудник_Логин.map((signer, index) => {
-                        return (
-                            data.users.map((user) => {
-                                if (user.username === signer) {
-                                    return (
-                                        <option key={index} value={signer}>
-                                            {user.Фамилия + ' ' + user.Имя + ' ' + user.Отчество}
-                                        </option>
-                                    )
-                                }
-                                else {
-                                    return null;
-                                }
-                            })
-                        )
-                    })}
+                    {data.users.map((u) => (
+                        <option key={u.username} value={u.username}>
+                            {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
+                        </option>
+                    ))}
                 </select>
             </div>
 
@@ -170,7 +148,7 @@ const TemporaryEquipmentReportForm = ({ showTemporaryEquipmentReportForm, setSho
 
             {/* Выбор оборудования */}
             <div className="d-flex flex-column gap-2">
-                <p className="form-label">Избранное оборудование</p>
+                <p className="form-label">Выбранное оборудование</p>
                 <div className="d-flex flex-column gap-2 w-fit">
                     {data.equipments.map((equipment) => (
                         selectedEquipments.includes(equipment.id) && (

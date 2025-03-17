@@ -463,6 +463,7 @@ class AssetsListView(APIView):
             data['users'] = UserSerializer(User.objects.all(), many=True).data
         elif user.Роль == "manager":
             data['users'] = UserSerializer(User.objects.filter(Организация=user.Организация), many=True).data
+            print(data['users'])
         return Response(data, status=status.HTTP_200_OK)
 
 # utils for convert and download .csv
