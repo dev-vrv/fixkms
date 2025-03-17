@@ -19,6 +19,17 @@ const TemporaryEquipmentReportForm = ({ showTemporaryEquipmentReportForm, setSho
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    useEffect(() => {
+        if (user.role === "manager" && formData["company_name"] !== user.company) {
+            setFormData((prev) => ({
+                ...prev,
+                "company_name": user.company,
+            }));
+        }
+    }, [user, formData, setFormData]);
+
     useEffect(() => {
         setOptionsData(null);
         fetchForm(`assets/handbooks/equipments`, "get", null, null).then(response => {
@@ -43,24 +54,28 @@ const TemporaryEquipmentReportForm = ({ showTemporaryEquipmentReportForm, setSho
             <h2>Создание акта передачи оборудования во временное пользование</h2>
 
             {/* Компания */}
-            <div className="d-flex flex-column gap-2">
-                <label className="form-label">Компания</label>
-                <select
-                    name="company_name"
-                    className="form-control"
-                    value={formData.company_name}
-                    onChange={handleChange}
-                >
-                    <option value="">Выберите компанию</option>
-                    {optionsData && optionsData.Компания.map((company, index) => {
-                        return (
-                            <option key={index} value={company}>
-                                {company}
-                            </option>
-                        )
-                    })}
-                </select>
-            </div>
+            {user.role === "admin" && (
+                <div className="d-flex flex-column gap-2">
+                    <label className="form-label">Компания</label>
+                    <select
+                        name="company_name"
+                        className="form-control"
+                        value={formData.company_name}
+                        onChange={handleChange}
+
+                    >
+                        <option value="">Выберите компанию</option>
+                        {optionsData && optionsData.Компания.map((company, index) => {
+                            return (
+                                <option key={index} value={company}>
+                                    {company}
+                                </option>
+                            )
+                        })}
+                    </select>
+                </div>
+            )}
+
 
             {/* Должность сотрудника */}
             <div className="d-flex flex-column gap-2">

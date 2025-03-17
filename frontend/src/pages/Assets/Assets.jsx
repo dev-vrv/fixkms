@@ -6,7 +6,7 @@ import Loader from "../../components/UI/Loader/Loader";
 import classes from "../Page.module.css";
 import MyTable from "../../components/UI/Table/MyTable";
 import AssetFormGenerator from "../../components/UI/Forms/AssetFormGenerator";
-import { translateAssets } from "../../utils/assets";
+import { translateAssets, translateAssetsSingle } from "../../utils/assets";
 import ImportForm from "../../components/UI/Forms/ImportForm";
 import Cookies from "js-cookie";
 import EquimpentReportForm from "../../components/UI/Forms/EquimpentReportForm";
@@ -364,8 +364,6 @@ const AssetsActions = ({ role, tab, data, setData }) => {
     )
   };
 
-
-  console.log(tab)
   return (
     <>
       <div className="p-3 px-3 border-bottom d-flex justify-content-between gap-3">
@@ -374,7 +372,7 @@ const AssetsActions = ({ role, tab, data, setData }) => {
       {formVisible && (
         <div className="p-3 border rounded form-container">
           {<AssetFormGenerator
-            title={`Добавить ${translateAssets(tab)}`}
+            title={`Добавить ${translateAssetsSingle(tab)}`}
             onClose={toggleFormVisibility}
             options={optionsData}
             endPoint={FormEndpointsMap[tab]}

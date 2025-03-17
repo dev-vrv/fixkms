@@ -12,6 +12,10 @@ body, html, #root {
 }
 
 
+.d-none {
+	display: none !important;
+}
+
 .border-bottom {
 	border-bottom: 1px solid #ccc;
 }

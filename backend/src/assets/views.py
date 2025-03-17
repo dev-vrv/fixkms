@@ -452,7 +452,6 @@ class AssetsListView(APIView):
 
         # Добавляем справочники и пользователей для администратора
         if user.Роль == "admin" or user.Роль == 'manager':
-            data['users'] = UserSerializer(User.objects.all(), many=True).data
             data['handbooks'] = {
                 "equipments": HandbookEquipmentsSerializer(HandbookEquipments.objects.all(), many=True).data,
                 "programs": HandbookProgramsSerializer(HandbookPrograms.objects.all(), many=True).data,
@@ -460,6 +459,10 @@ class AssetsListView(APIView):
                 "consumables": HandbookConsumablesSerializer(HandbookConsumables.objects.all(), many=True).data,
                 "company": HandbookCompanySerializer(HandbookCompany.objects.all(), many=True).data,
             }
+        if user.Роль == "admin":
+            data['users'] = UserSerializer(User.objects.all(), many=True).data
+        elif user.Роль == "manager":
+            data['users'] = UserSerializer(User.objects.filter(Организация=user.Организация), many=True).data
         return Response(data, status=status.HTTP_200_OK)
 
 # utils for convert and download .csv

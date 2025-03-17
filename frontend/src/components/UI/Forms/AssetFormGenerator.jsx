@@ -247,8 +247,16 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
     const [defaultText, setDefaultText] = useState('Выберите значение');
     
     const user = JSON.parse(localStorage.getItem("user"));
-    const relations = user.role !== "admin" ? relationsMapsManager : relationsMaps;
-    const relationsFieldsMaps = relations[asset] || relations.default;
+    const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
+
+    useEffect(() => {
+        if (user.role === "manager" && formData["Компания"] !== user.company) {
+            setFormData((prev) => ({
+                ...prev,
+                "Компания": user.company,
+            }));
+        }
+    }, [user, formData, setFormData] );
 
     useEffect(() => {
         const blockingField = getBlockingField(name, formData, asset, relationsFieldsMaps);

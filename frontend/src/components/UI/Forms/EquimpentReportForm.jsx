@@ -14,10 +14,21 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
     });
 
     const [optionsData, setOptionsData] = useState(null);
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+
+    useEffect(() => {
+        if (user.role === "manager" && formData["company_name"] !== user.company) {
+            setFormData((prev) => ({
+                ...prev,
+                "company_name": user.company,
+            }));
+        }
+    }, [user, formData, setFormData]);
 
     useEffect(() => {
         setOptionsData(null);
@@ -43,25 +54,27 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
             <form className="d-flex p-3 gap-3 flex-column form-container">
                 <h2>Создание акта возврата оборудования</h2>
 
-                {/* Выбор компании */}
-                <div className="d-flex flex-column gap-2">
-                    <label className="form-label">Компания</label>
-                    <select
-                        name="company_name"
-                        className="form-control"
-                        value={formData.company_name}
-                        onChange={handleChange}
-                    >
-                        <option value="">Выберите компанию</option>
-                        {optionsData && optionsData.Компания.map((company, index) => {
-                            return (
-                                <option key={index} value={company}>
-                                    {company}
-                                </option>
-                            )
-                        })}
-                    </select>
-                </div>
+                {user.role === "admin" && (
+                    <div className="d-flex flex-column gap-2">
+                        <label className="form-label">Компания</label>
+                        <select
+                            name="company_name"
+                            className="form-control"
+                            value={formData.company_name}
+                            onChange={handleChange}
+
+                        >
+                            <option value="">Выберите компанию</option>
+                            {optionsData && optionsData.Компания.map((company, index) => {
+                                return (
+                                    <option key={index} value={company}>
+                                        {company}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                )}
 
                 {/* Должность сотрудника */}
                 <div className="d-flex flex-column gap-2">

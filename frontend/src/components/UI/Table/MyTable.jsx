@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./MyTable.css";
 import MyButton from "../Button/MyButton";
-import { translateAssets } from "../../../utils/assets";
+import { translateAssets, translateAssetsSingle } from "../../../utils/assets";
 import { fetchData, fetchForm } from "../../../utils/fetchData";
 import AssetFormGenerator from "../Forms/AssetFormGenerator";
 
@@ -240,7 +240,7 @@ const MyTable = ({ fullData, tab, role, isHandbook, assetsData = null }) => {
 		return (
 			<AssetFormGenerator
 				onClose={() => setEditingRow(null)}
-				title={`Изменение ${translateAssets(tab)} ID: ${editingRow.id}`}
+				title={`Изменение ${translateAssetsSingle(tab)} ID: ${editingRow.id}`}
 				asset={tab} endPoint={urls[tab].update}
 				options={!isHandbook ? optionsData : null}
 				method="put"
