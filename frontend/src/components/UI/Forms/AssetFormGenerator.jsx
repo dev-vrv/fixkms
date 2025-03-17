@@ -194,6 +194,33 @@ const relationsMaps = {
     }
 };
 
+const relationsMapsManager = {
+    default: {
+        Тип: ['Производитель', 'Модель'],
+        Производитель: ['Модель'],
+    },
+    programs: {
+        Производитель: ['Модель', 'Название'],
+        Название: ['Версия'],
+    }
+}
+
+const getBlockingField = (field, formData, asset, relationsFieldsMaps) => {
+
+    for (const [parent, children] of Object.entries(relationsFieldsMaps)) {
+        if (children.includes(field)) {
+            if (parent === "Категория" && field === 'Название' && asset === 'programs') {
+                return null;
+            }
+            if (!formData[parent] || formData[parent] === '') {
+                return parent;
+            }
+            return getBlockingField(parent, formData, asset, relationsFieldsMaps);
+        }
+    }
+    return null;
+};
+
 const BaseField = ({ name, value, onChange }) => {
 
     let inputType = "text";
@@ -214,32 +241,17 @@ const BaseField = ({ name, value, onChange }) => {
     )
 }
 
-const getBlockingField = (field, formData, asset) => {
-    const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
-
-    for (const [parent, children] of Object.entries(relationsFieldsMaps)) {
-        if (children.includes(field)) {
-            if (parent === "Категория" && field === 'Название' && asset === 'programs') {
-                return null;
-            }
-            if (!formData[parent] || formData[parent] === '') {
-                return parent;
-            }
-            return getBlockingField(parent, formData, asset);
-        }
-    }
-    return null;
-};
-
 const SelectField = ({ name, options, onChange, defaultValue, fullData, formData, asset, setFormData }) => {
     const [disabled, setDisabled] = useState(false);
     const [relationOptions, setRelationOptions] = useState(null);
     const [defaultText, setDefaultText] = useState('Выберите значение');
     
-    const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
-    
+    const user = JSON.parse(localStorage.getItem("user"));
+    const relations = user.role !== "admin" ? relationsMapsManager : relationsMaps;
+    const relationsFieldsMaps = relations[asset] || relations.default;
+
     useEffect(() => {
-        const blockingField = getBlockingField(name, formData, asset);
+        const blockingField = getBlockingField(name, formData, asset, relationsFieldsMaps);
         if (blockingField) {
             setDisabled(true);
         } else {
@@ -258,7 +270,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                     setDefaultText('Выберите значение');
                 }
 
-                if (key !== 'Компания' && !relationsFieldsMaps['Компания'].includes(name)) {
+                if (key !== 'Компания' && !relationsFieldsMaps['Компания']?.includes(name)) {
                     fullData['handbooks'][asset]?.forEach((item) => {
                         if (item[key] === formData[key]) {
                             optionsFromRelation.push(item[name]);
@@ -291,7 +303,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
         });
 
         setDisabled(shouldDisable);
-    }, [name, formData, fullData, asset, relationsFieldsMaps, setFormData]);
+    }, [name, formData, fullData, asset, setFormData, relationsFieldsMaps]);
 
     return (
         <div className="d-flex flex-column gap-1">
