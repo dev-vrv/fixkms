@@ -25,12 +25,12 @@ export const translateAssets = (text) => {
 	}
 };
 
-export const translateAssetsSingle = (text) => {
+export const translateAssetsEdit = (text) => {
 	switch (text) {
 		case "components":
-			return "Комплектующие";
+			return "Комплектующего";
 		case "consumables":
-			return "Расходник";
+			return "Расходника";
 		case "equipments":
 			return "Оборудования";
 		case "movements":
@@ -38,15 +38,15 @@ export const translateAssetsSingle = (text) => {
 		case "programs":
 			return "Программы";
 		case "repairs":
-			return "Ремонт";
+			return "Ремонта";
 		case "users":
 			return "Пользователя";
 		case "handbooks":
 			return "Справочник";
 		case "companys":
-			return "Компанию";
+			return "Компании";
 		case "company":
-			return "Компанию";
+			return "Компании";
 		default:
 			return text;
 	}
