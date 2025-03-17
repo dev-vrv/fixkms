@@ -28,15 +28,15 @@ export const translateAssets = (text) => {
 export const translateAssetsSingle = (text) => {
 	switch (text) {
 		case "components":
-			return "Комплектующее";
+			return "Комплектующие";
 		case "consumables":
 			return "Расходник";
 		case "equipments":
-			return "Оборудование";
+			return "Оборудования";
 		case "movements":
 			return "Перемещение";
 		case "programs":
-			return "Программу";
+			return "Программы";
 		case "repairs":
 			return "Ремонт";
 		case "users":

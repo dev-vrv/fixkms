@@ -13,8 +13,11 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
         signer_2: "",
         equipment_ids: [],
     });
+    const [users, setUsers] = useState([]);
 
     const user = JSON.parse(localStorage.getItem("user"));
+    const [optionsData, setOptionsData] = useState(null);
+    
 
     useEffect(() => {
         if (user.role === "manager" && formData["company_name"] !== user.company) {
@@ -25,7 +28,11 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
         }
     }, [user, formData, setFormData]);
 
-    const [optionsData, setOptionsData] = useState(null);
+    useEffect(() => {
+        if (formData.company_name !== '') {
+            setUsers(data.users.filter((u) => u.Организация === formData.company_name));
+        }
+    }, [formData, data, setUsers]);
 
     useEffect(() => {
         setOptionsData(null);
@@ -49,6 +56,9 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
     };
 
     if (!showBrokenEquipmentReportForm) return null;
+
+
+
     return (
         <form className="d-flex p-3 gap-3 flex-column form-container">
             <h2>Создание акта приема неисправного оборудования</h2>
@@ -108,14 +118,17 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
                 <select
                     name="signer_1"
                     className="form-control"
-                    value={formData.signer_1} // убедимся, что value привязан к formData
+                    value={formData.signer_1}
                     onChange={handleChange}
+                    disabled={users.length === 0}
                 >
                     <option value="">Выберите пользователя</option>
-                    {data.users.map((u) => (
-                        <option key={u.username} value={u.username}>
-                            {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
-                        </option>
+                    {users && users.map((u) => (
+                        u.Организация === formData.company_name && (
+                            <option key={u.username} value={u.username}>
+                                {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
+                            </option>
+                        )
                     ))}
                 </select>
             </div>
@@ -128,12 +141,15 @@ const BrokenEquipmentReportForm = ({ showBrokenEquipmentReportForm, setShowBroke
                     className="form-control"
                     value={formData.signer_2}
                     onChange={handleChange}
+                    disabled={users.length === 0}
                 >
                     <option value="">Выберите пользователя</option>
-                    {data.users.map((u) => (
-                        <option key={u.username} value={u.username}>
-                            {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
-                        </option>
+                    {users && users.map((u) => (
+                        u.Организация === formData.company_name && (
+                            <option key={u.username} value={u.username}>
+                                {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
+                            </option>
+                        )
                     ))}
                 </select>
             </div>

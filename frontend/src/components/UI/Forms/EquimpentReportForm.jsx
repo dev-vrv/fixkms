@@ -14,11 +14,18 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
     });
 
     const [optionsData, setOptionsData] = useState(null);
+    const [users, setUsers] = useState([]);
     const user = JSON.parse(localStorage.getItem("user"));
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    useEffect(() => {
+        if (formData.company_name !== '') {
+            setUsers(data.users.filter((u) => u.Организация === formData.company_name));
+        }
+    }, [formData, data, setUsers]);
 
 
     useEffect(() => {
@@ -109,14 +116,17 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
                     <select
                         name="signer_1"
                         className="form-control"
-                        value={formData.signer_1} // убедимся, что value привязан к formData
+                        value={formData.signer_1}
                         onChange={handleChange}
+                        disabled={users.length === 0}
                     >
                         <option value="">Выберите пользователя</option>
-                        {data.users.map((u) => (
-                            <option key={u.username} value={u.username}>
-                                {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
-                            </option>
+                        {users && users.map((u) => (
+                            u.Организация === formData.company_name && (
+                                <option key={u.username} value={u.username}>
+                                    {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
+                                </option>
+                            )
                         ))}
                     </select>
                 </div>
@@ -129,16 +139,18 @@ const EquimpentReportForm = ({ showEquipmentReportForm, setShowEquipmentReportFo
                         className="form-control"
                         value={formData.signer_2}
                         onChange={handleChange}
+                        disabled={users.length === 0}
                     >
                         <option value="">Выберите пользователя</option>
-                        {data.users.map((u) => (
-                            <option key={u.username} value={u.username}>
-                                {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
-                            </option>
+                        {users && users.map((u) => (
+                            u.Организация === formData.company_name && (
+                                <option key={u.username} value={u.username}>
+                                    {u.Фамилия + ' ' + u.Имя + ' ' + u.Отчество}
+                                </option>
+                            )
                         ))}
                     </select>
                 </div>
-
 
                 {/* Кнопки */}
                 <div className="d-flex gap-3 flex-wrap">

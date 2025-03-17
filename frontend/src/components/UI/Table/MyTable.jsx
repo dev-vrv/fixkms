@@ -240,7 +240,7 @@ const MyTable = ({ fullData, tab, role, isHandbook, assetsData = null }) => {
 		return (
 			<AssetFormGenerator
 				onClose={() => setEditingRow(null)}
-				title={`Изменение ${translateAssetsSingle(tab)} ID: ${editingRow.id}`}
+				title={`Изменения ${translateAssetsSingle(tab)} ID: ${editingRow.id}`}
 				asset={tab} endPoint={urls[tab].update}
 				options={!isHandbook ? optionsData : null}
 				method="put"
