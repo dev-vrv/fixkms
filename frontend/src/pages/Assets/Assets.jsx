@@ -374,7 +374,6 @@ const AssetsActions = ({ role, tab, data, setData }) => {
           {<AssetFormGenerator
             title={`Добавить ${translateAssets(tab)}`}
             onClose={toggleFormVisibility}
-            options={optionsData}
             endPoint={FormEndpointsMap[tab]}
             asset={tab}
             fullData={data}

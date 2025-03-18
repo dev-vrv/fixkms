@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, use  } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { fetchForm } from "../../../utils/fetchData";
 import MyButton from "../Button/MyButton";
 import SelectInput from "../Select/Select";
@@ -240,6 +240,24 @@ const isMustBeBlocked = (key, name, formData, relationsFieldsMaps) => {
     }
 };
 
+const initRelationsChanged = (relationsFieldsMaps, formData, prevFormData, name, setFormData) => {
+    Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
+        if (values.includes(name) && formData[key] !== prevFormData[key]) {
+            values.forEach((value) => {
+                if (value === name) {
+                    return;
+                }
+                setFormData((prev) => ({
+                    ...prev,
+                    [value]: '',
+                }));
+                console.log('changed', name, value);
+            })
+            return true;
+        }
+    });
+}
+
 const SelectField = ({ name, options, onChange, defaultValue, fullData, formData, asset, setFormData }) => {
     const [disabled, setDisabled] = useState(false);
     const [relationOptions, setRelationOptions] = useState(null);
@@ -255,6 +273,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 "Компания": user.company,
             }));
         }
+
     }, [user, formData, setFormData]);
 
     useEffect(() => {
@@ -316,17 +335,12 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
 
         setDisabled(shouldDisable);
 
+        initRelationsChanged(relationsFieldsMaps, formData, prevFormData.current, name, setFormData)
+
         prevFormData.current = formData;
     }, [name, formData, fullData, asset, setFormData, relationsFieldsMaps]);
 
 
-    useEffect(() => {
-        Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
-            if (values.includes(name)) {
-                console.log(formData, prevFormData.current)
-            }
-        });
-    }, [name, formData, relationOptions, setDisabled, relationsFieldsMaps]);
     
     return (
         <div className="d-flex flex-column gap-1">
@@ -362,11 +376,12 @@ const AssetFormGenerator = ({
     const [formData, setFormData] = useState(editingRow ? editingRow : {});
     const [alertMessage, setAlertMessage] = useState(null);
     const [alertStatus, setAlertStatus] = useState("");
-
     const formFields = isHandbook ? handbookFieldsMap[asset] : baseFieldsMap[asset]
     const optionsFormFields = options ? options : {}
     const user = JSON.parse(localStorage.getItem("user"));
-    const onlyAdminFields = ["Компания"]
+    const onlyAdminFields = ["Компания"];
+
+   
 
     const handleSubmit = async () => {
         try {
