@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, use  } from "react";
 import { fetchForm } from "../../../utils/fetchData";
 import MyButton from "../Button/MyButton";
 import SelectInput from "../Select/Select";
@@ -230,13 +230,23 @@ const BaseField = ({ name, value, onChange }) => {
     )
 }
 
+const isMustBeBlocked = (key, name, formData, relationsFieldsMaps) => {
+    if (!formData[key] || formData[key] === '') {
+        return true;
+    }
+
+    if (Object.keys(relationsFieldsMaps).includes(key) && formData[key] === '') {
+        return true;
+    }
+};
+
 const SelectField = ({ name, options, onChange, defaultValue, fullData, formData, asset, setFormData }) => {
     const [disabled, setDisabled] = useState(false);
     const [relationOptions, setRelationOptions] = useState(null);
     const [defaultText, setDefaultText] = useState('Выберите значение');
-    
     const user = JSON.parse(localStorage.getItem("user"));
     const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
+    const prevFormData = useRef(formData);
 
     useEffect(() => {
         if (user.role === "manager" && formData["Компания"] !== user.company) {
@@ -245,7 +255,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 "Компания": user.company,
             }));
         }
-    }, [user, formData, setFormData] );
+    }, [user, formData, setFormData]);
 
     useEffect(() => {
         const blockingField = getBlockingField(name, formData, asset, relationsFieldsMaps);
@@ -257,51 +267,67 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
 
         const optionsFromRelation = [];
         let shouldDisable = false;
-                
-        Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
-            if (values.includes(name)) {
-                if (!formData[key] || formData[key] === '') {
-                    shouldDisable = true;
-                    return;
-                } else {
-                    setDefaultText('Выберите значение');
-                }
 
-                if (key !== 'Компания' && !relationsFieldsMaps['Компания']?.includes(name)) {
-                    fullData['handbooks'][asset]?.forEach((item) => {
-                        if (item[key] === formData[key]) {
+        Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
+            if (!values.includes(name)) {
+                return;
+            }
+
+            if (isMustBeBlocked(key, name, formData, relationsFieldsMaps)) {
+                shouldDisable = true;
+                return;
+            } 
+            else {
+                setDefaultText('Выберите значение');
+            }
+
+            if (key !== 'Компания' && !relationsFieldsMaps['Компания']?.includes(name)) {
+                fullData['handbooks'][asset]?.forEach((item) => {
+                    if (item[key] === formData[key]) {
+                        optionsFromRelation.push(item[name]);
+                    }
+                });
+            } 
+            else {
+                if (name === 'Сотрудник_Логин') {
+                    fullData['users'].forEach((user) => {
+                        if (user['Организация'] === formData['Компания']) {
+                            optionsFromRelation.push(user['username']);
+                        }
+                    });
+                } 
+                else if (name === 'Сотрудник') {
+                    fullData['users'].forEach((user) => {
+                        if (user['Организация'] === formData['Компания']) {
+                            optionsFromRelation.push(user['Фамилия'] ? `${user['Фамилия']} ${user['Имя']} ${user['Отчество']}` : user['username']);
+                        }
+                    });
+                } 
+                else {
+                    fullData['handbooks']['company'].forEach((item) => {
+                        if (item['Компания'] === formData['Компания'] && item[name] !== '') {
                             optionsFromRelation.push(item[name]);
                         }
                     });
-                } else {
-                    if (name === 'Сотрудник_Логин') {
-                        fullData['users'].forEach((user) => {
-                            if (user['Организация'] === formData['Компания']) {
-                                optionsFromRelation.push(user['username']);
-                            }
-                        });
-                    } else if (name === 'Сотрудник') {
-                        fullData['users'].forEach((user) => {
-                            if (user['Организация'] === formData['Компания']) {
-                                optionsFromRelation.push(user['Фамилия'] ? `${user['Фамилия']} ${user['Имя']} ${user['Отчество']}` : user['username']);
-                            }
-                        });
-                    } else {
-                        fullData['handbooks']['company'].forEach((item) => {
-                            if (item['Компания'] === formData['Компания'] && item[name] !== '') {
-                                optionsFromRelation.push(item[name]);
-                            }
-                        });
-                    }
                 }
-
-                setRelationOptions(optionsFromRelation);
             }
+            setRelationOptions(optionsFromRelation);
         });
 
         setDisabled(shouldDisable);
+
+        prevFormData.current = formData;
     }, [name, formData, fullData, asset, setFormData, relationsFieldsMaps]);
 
+
+    useEffect(() => {
+        Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
+            if (values.includes(name)) {
+                console.log(formData, prevFormData.current)
+            }
+        });
+    }, [name, formData, relationOptions, setDisabled, relationsFieldsMaps]);
+    
     return (
         <div className="d-flex flex-column gap-1">
             <label className="p-1 text-capitalize">

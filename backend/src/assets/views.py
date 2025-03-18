@@ -47,7 +47,7 @@ from datetime import datetime
 import csv
 import os
 import chardet
-
+import traceback
 
 def detect_encoding(file_path):
     with open(file_path, 'rb') as f:
@@ -56,10 +56,7 @@ def detect_encoding(file_path):
         return result['encoding']
 
 
-def is_valid_date(value, date_formats=["%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"]):
-    """
-    Проверяет, соответствует ли строка одному из форматов даты.
-    """
+def is_valid_date(value, date_formats=["%Y-%m-%d"]):
     for date_format in date_formats:
         try:
             datetime.strptime(value, date_format)
@@ -67,6 +64,22 @@ def is_valid_date(value, date_formats=["%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%
         except ValueError:
             continue
     return False
+
+def convert_to_date(value):
+    if isinstance(value, str):
+        for fmt in ("%d %m %y", "%d-%m-%Y", "%d/%m/%Y", "%m/%d/%Y", "%Y-%m-%d"):
+            try:
+                return datetime.strptime(value, fmt).strftime("%Y-%m-%d")
+            except ValueError:
+                continue
+    return value
+
+def is_date(field, value):
+    if "Дата" in field and isinstance(value, str) or "Гарантия_До" in field and isinstance(value, str) or "Лиценизя_До" in field and isinstance(value, str) or "Ремонт_Дата_Изменения" in field and isinstance(value, str):
+        return True
+    else:
+        return False
+
 
 
 model_mapping = {
@@ -463,7 +476,6 @@ class AssetsListView(APIView):
             data['users'] = UserSerializer(User.objects.all(), many=True).data
         elif user.Роль == "manager":
             data['users'] = UserSerializer(User.objects.filter(Организация=user.Организация), many=True).data
-            print(data['users'])
         return Response(data, status=status.HTTP_200_OK)
 
 # utils for convert and download .csv
@@ -472,8 +484,6 @@ class AssetsListView(APIView):
 def export_assets_to_csv(file_path, model_name, pks=None):
     model = model_mapping.get(model_name.lower())
     field_names = fields_mapping.get(model_name.lower())
-    
-    print(pks)
 
     if model and field_names:
         if pks and len(pks) > 0:
@@ -553,7 +563,6 @@ class ExportDBView(APIView):
             except Http404 as e:
                 return Response({"error": str(e)}, status=404)
         else:
-            print(exported_file_path)
             return Response({"error": exported_file_path}, status=400)
 
 
@@ -578,17 +587,18 @@ def import_csv_to_db(file_path, model_name):
                         value = row[field].strip() if isinstance(
                             row[field], str) else None
 
-                        # Обработка дат
-                        if "Дата" in field and isinstance(value, str):
-                            if is_valid_date(value):
-                                row[field] = value
-                            else:
-                                errors.append(
-                                    'Ошибка формата даты \n'
-                                )
+                        if is_date(field, value):
+                            if not value.strip():  # Если строка пустая, пропускаем
                                 row[field] = None
-                        else:
-                            row[field] = None if value == "" else value
+                                continue
+
+                            converted_date = convert_to_date(value)
+
+                            if is_valid_date(converted_date):
+                                row[field] = converted_date
+                            else:
+                                errors.append(f'Ошибка формата даты: "{value}"')
+                                row[field] = None
 
                         # Обработка числовых значений
                         if "Стоимость" in field:
@@ -608,80 +618,19 @@ def import_csv_to_db(file_path, model_name):
                         instances.append(instance)
                     except Exception as e:
                         pass
-
-                model.objects.bulk_create(instances)
+                
+                print(instances)
+                model.objects.bulk_create(instances, ignore_conflicts=True)
             founded = model.objects.filter(id__in=pks)
             created = founded.count()
         except IntegrityError as e:
             founded = model.objects.filter(id__in=pks)
             exist = founded.count()
         except Exception as e:
+            error_message = traceback.format_exc()
+            print(error_message)
+
             errors.append(f"Ошибка импорта данных: {str(e)}. \n")
-
-    else:
-        asset_name = os.path.splitext(os.path.basename(file_path))[0]
-        custom_asset, created = CustomAsset.objects.get_or_create(
-            Название=asset_name)
-
-        if created:
-            print(f"Создан новый актив: {asset_name}")
-        else:
-            errors.append(f"Найден существующий актив: {asset_name}")
-
-        try:
-            CustomAssetDetails.objects.filter(Актив=custom_asset).delete()
-            error_message = ''
-            with open(file_path, mode="r", encoding=encoding) as file:
-                reader = csv.DictReader(file, delimiter=";")
-                instances = []
-
-                for row in reader:
-                    for field in row:
-                        value = row[field].strip() if isinstance(
-                            row[field], str) else None
-
-                        # Обработка дат
-                        if "Дата" in field and isinstance(value, str):
-                            if is_valid_date(value):
-                                row[field] = value
-                            else:
-                                errors.append(
-                                    f'Ошибка формата даты \n'
-                                )
-                                row[field] = None
-                        else:
-                            row[field] = None if value == "" else value
-
-                        # Обработка чисел
-                        if "Стоимость" in field:
-                            if value in [None, ""]:
-                                row[field] = None
-                            else:
-                                try:
-                                    row[field] = float(value)
-                                except ValueError as e:
-                                    errors.append(
-                                        f'Ошибка формата числа {e} \n'
-                                    )
-                                    row[field] = None
-
-                    # Установка значения по умолчанию для поля "Не_Инвент"
-                    row["Не_Инвент"] = row.get(
-                        "Не_Инвент", False) not in [None, ""]
-
-                    try:
-                        asset_value = row.pop("Актив", None)
-                        instance = CustomAssetDetails(
-                            Актив=custom_asset, **row)
-                        instances.append(instance)
-                    except Exception as e:
-                        errors.append(
-                            f"Ошибка при создании экземпляра модели: {str(e)} для id: {row['id']}"
-                        )
-
-                CustomAssetDetails.objects.bulk_create(instances)
-        except Exception as e:
-            errors.append(f"Ошибка импорта данных: {str(e)}.")
 
     return {
         "imported_file_path": file_path,

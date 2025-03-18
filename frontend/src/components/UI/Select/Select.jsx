@@ -8,10 +8,6 @@ const SelectInput = ({ name, options, onChange, className, defaultValue, default
 
   options = [...new Set(options)].filter((option) => option !== null && option !== '' && option !== defaultValue);
   
-  if (disabled) {
-    console.log()
-  }
-
   return (
     <select name={name} onChange={onChange} defaultValue={!disabled ? defaultValue : ''} className={`form-control ${className} ${disabled ? 'disabled' : ''}`} disabled={disabled}>
       <option value={defaultValue}>{defaultText}</option>
