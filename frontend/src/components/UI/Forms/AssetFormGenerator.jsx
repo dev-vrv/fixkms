@@ -266,6 +266,7 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
     const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
     const prevFormData = useRef(formData);
 
+
     useEffect(() => {
         if (user.role === "manager" && formData["Компания"] !== user.company) {
             setFormData((prev) => ({
@@ -273,7 +274,6 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 "Компания": user.company,
             }));
         }
-
     }, [user, formData, setFormData]);
 
     useEffect(() => {
@@ -379,9 +379,7 @@ const AssetFormGenerator = ({
     const formFields = isHandbook ? handbookFieldsMap[asset] : baseFieldsMap[asset]
     const optionsFormFields = options ? options : {}
     const user = JSON.parse(localStorage.getItem("user"));
-    const onlyAdminFields = ["Компания"];
-
-   
+    const onlyAdminFields = ["Компания"]
 
     const handleSubmit = async () => {
         try {

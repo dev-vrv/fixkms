@@ -63,15 +63,23 @@ def is_valid_date(value, date_formats=["%Y-%m-%d"]):
             return True
         except ValueError:
             continue
+    print(f"Invalid date: {value}")
     return False
 
 def convert_to_date(value):
     if isinstance(value, str):
-        for fmt in ("%d %m %y", "%d-%m-%Y", "%d/%m/%Y", "%m/%d/%Y", "%Y-%m-%d"):
-            try:
-                return datetime.strptime(value, fmt).strftime("%Y-%m-%d")
-            except ValueError:
-                continue
+        try:
+            # Пробуем сначала разобрать как ISO 8601
+            dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            # Если не получилось, пробуем другие форматы
+            for fmt in ("%d %m %y", "%d-%m-%Y", "%d/%m/%Y", "%m/%d/%Y", "%Y-%m-%d"):
+                try:
+                    return datetime.strptime(value, fmt).strftime("%Y-%m-%d")
+                except ValueError:
+                    continue
+    print(f"Invalid date: {value}")
     return value
 
 def is_date(field, value):

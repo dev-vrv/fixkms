@@ -39,7 +39,7 @@ class BaseAssetA(models.Model):
 
 class BaseAssetB(models.Model):
     Стоимость_с_содержимым = models.FloatField(blank=True, null=True)
-    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateField(blank=True, null=True)
     Содержимое = models.CharField(max_length=255, blank=True, null=True)
     Инвентарный_Номер_Связанного_Объекта = models.CharField(
         max_length=255, blank=True, null=True
@@ -48,10 +48,10 @@ class BaseAssetB(models.Model):
     Модель_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Номер_Заказа = models.CharField(max_length=255, blank=True, null=True)
     Не_Инвент = models.BooleanField(default=False)
-    # create_date = models.DateTimeField(auto_now_add=True)
-    Дата_Изменения = models.DateTimeField(blank=True, null=True)
+    # create_date = models.DateField(auto_now_add=True)
+    Дата_Изменения = models.DateField(blank=True, null=True)
     Изменил = models.CharField(max_length=255, blank=True, null=True)
-    Дата_последней_проверки = models.DateTimeField(blank=True, null=True)
+    Дата_последней_проверки = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.Инвентарный_Номер_Связанного_Объекта if self.Инвентарный_Номер_Связанного_Объекта else 'Инвентарный номер не указан'
@@ -146,7 +146,7 @@ class Components(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetWrranty, BaseAsset
         max_length=255, blank=True, null=True
     )
     Заправлен = models.BooleanField(default=False)
-    Дата_последней_заправки = models.DateTimeField(blank=True, null=True)
+    Дата_последней_заправки = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.Серийный_Номер_Связанного_Объекта if self.Серийный_Номер_Связанного_Объекта else 'Серийный номер не указан'
@@ -174,9 +174,9 @@ class Consumables(BaseAssetA, BaseAssetB, BaseAssetC, BaseAssetTMPN):
 
 class Repairs(BaseAssetA, BaseAssetWrranty, BaseAssetTMPN):
     Номер = models.CharField(max_length=255, blank=True, null=True)
-    Дата_Поломки = models.DateTimeField(blank=True, null=True)
-    Дата_Отправки = models.DateTimeField(blank=True, null=True)
-    Дата_Возврата = models.DateTimeField(blank=True, null=True)
+    Дата_Поломки = models.DateField(blank=True, null=True)
+    Дата_Отправки = models.DateField(blank=True, null=True)
+    Дата_Возврата = models.DateField(blank=True, null=True)
     Описание_Неисправности = models.CharField(max_length=255, blank=True, null=True)
     Ремонт_Примечания = models.CharField(max_length=255, blank=True, null=True)
     Ремонт_Сервисная_Организация = models.CharField(
@@ -186,7 +186,7 @@ class Repairs(BaseAssetA, BaseAssetWrranty, BaseAssetTMPN):
     Создал = models.CharField(max_length=255, blank=True, null=True)
     Отправил = models.CharField(max_length=255, blank=True, null=True)
     Принял = models.CharField(max_length=255, blank=True, null=True)
-    Ремонт_Дата_Изменения = models.DateTimeField(blank=True, null=True)
+    Ремонт_Дата_Изменения = models.DateField(blank=True, null=True)
     Ремонт_Изменил = models.CharField(max_length=255, blank=True, null=True)
     Вид_Учётных_Единиц = models.CharField(max_length=255, blank=True, null=True)
     ID_Объекта = models.CharField(max_length=255, blank=True, null=True)
@@ -245,13 +245,13 @@ class Movements(models.Model):
     Компания = models.CharField(max_length=255, blank=True, null=True)
     Количество = models.IntegerField(blank=True, null=True)
     Описание = models.CharField(max_length=255, blank=True, null=True)
-    # Дата_Создания = models.DateTimeField(auto_now_add=True)
+    # Дата_Создания = models.DateField(auto_now_add=True)
     Создал = models.CharField(max_length=255, blank=True, null=True)
-    Дата_Отправки = models.DateTimeField(blank=True, null=True)
+    Дата_Отправки = models.DateField(blank=True, null=True)
     Пользователь_Отправитель = models.CharField(max_length=255, blank=True, null=True)
-    Дата_Получения = models.DateTimeField(blank=True, null=True)
+    Дата_Получения = models.DateField(blank=True, null=True)
     Пользователь_Получатель = models.CharField(max_length=255, blank=True, null=True)
-    Дата_Изменения = models.DateTimeField(blank=True, null=True)
+    Дата_Изменения = models.DateField(blank=True, null=True)
     Изменил = models.CharField(max_length=255, blank=True, null=True)
 
     Дополнительные_Поля = models.JSONField(blank=True, null=True)
@@ -305,7 +305,7 @@ class HandbookEquipments(models.Model):
     Количество_Мегапикселей = models.FloatField(blank=True, null=True)
     Количество_портов = models.IntegerField(blank=True, null=True)
     Стоимость_с_содержимым = models.FloatField(blank=True, null=True)
-    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateField(blank=True, null=True)
     Содержимое = models.CharField(max_length=255, blank=True, null=True)
     Инвентарный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Тип_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
@@ -330,7 +330,7 @@ class HandbookPrograms(models.Model):
     Количество_Мульти_Лицензий = models.IntegerField(blank=True, null=True)
     Лиценизя_До = models.DateField(blank=True, null=True)
     Количество_пользователей = models.IntegerField(blank=True, null=True)
-    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateField(blank=True, null=True)
     Инвентарный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
@@ -346,7 +346,7 @@ class HandbookComponents(models.Model):
     Серийный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Стоимость = models.FloatField(blank=True, null=True)
-    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateField(blank=True, null=True)
     Гарантия_До = models.DateField(blank=True, null=True)
     Тип = models.CharField(max_length=255, blank=True, null=True)
     Модель = models.CharField(max_length=255, blank=True, null=True)
@@ -368,7 +368,7 @@ class HandbookConsumables(models.Model):
     Серийный_Номер_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Инв_Номер_Бухгалтерии_Связанного_Объекта = models.CharField(max_length=255, blank=True, null=True)
     Стоимость = models.FloatField(blank=True, null=True)
-    Дата_Инвертаризации = models.DateTimeField(blank=True, null=True)
+    Дата_Инвертаризации = models.DateField(blank=True, null=True)
     Тип = models.CharField(max_length=255, blank=True, null=True)
     Модель = models.CharField(max_length=255, blank=True, null=True)
     Номер_Партии = models.CharField(max_length=255, blank=True, null=True)

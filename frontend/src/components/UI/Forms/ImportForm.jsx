@@ -1,9 +1,10 @@
 import MyButton from "../Button/MyButton";
+import { translateAssets } from "../../../utils/assets";
 
 const ImportForm = ({ tab, importAlertType, setImportAlertType, importAlert, setImportAlert, handleImportSubmit, handleFileChange, toggleImportFormVisibility }) => {
     return (
         <div className="p-3 border rounded form-container">
-            <h3>Импортировать CSV для {tab}</h3>
+            <h3>Импортировать CSV для {translateAssets(tab)}</h3>
             {importAlert && <div className={`alertBox ${importAlertType}`} style={{ maxHeight: "200px", overflowY: "auto" }}>
                 {importAlert}
                 <button type="button" className="p-1" onClick={() => {
