@@ -62,7 +62,7 @@ class RepairsModelTest(TestCase):
     def setUp(self):
         self.repair = Repairs.objects.create(
             Номер="REP12345",
-            Дата_Поломки="2025-03-04 14:00:00",
+            Дата_Поломки="2025-03-04",
             Описание_Неисправности="Test Failure"
         )
 
