@@ -1,6 +1,6 @@
-const SelectInput = ({ name, options, onChange, className, defaultValue, defaultText, disabled }) => {
+const SelectInput = ({ name, options, onChange, className, defaultValue, disabled }) => {
   if (defaultValue) {
-    defaultText = defaultValue.toString().replace(/_/g, ' ');
+    defaultValue = defaultValue.toString().replace(/_/g, ' ');
   }
   else {
     defaultValue = '';
@@ -10,7 +10,9 @@ const SelectInput = ({ name, options, onChange, className, defaultValue, default
   
   return (
     <select name={name} onChange={onChange} defaultValue={!disabled ? defaultValue : ''} className={`form-control ${className} ${disabled ? 'disabled' : ''}`} disabled={disabled}>
-      <option value={defaultValue}>{defaultText}</option>
+      <option value="">Выберите значение</option>
+      {defaultValue && !disabled ? <option value={defaultValue}>{defaultValue}</option> : null}
+
       {!disabled && options.map((option) => (
         <option key={`${option}-${name}`} value={option}>{option?.toString().replace(/_/g, ' ')}</option>
       ))}

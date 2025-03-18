@@ -240,7 +240,7 @@ const isMustBeBlocked = (key, name, formData, relationsFieldsMaps) => {
     }
 };
 
-const initRelationsChanged = (relationsFieldsMaps, formData, prevFormData, name, setFormData, setDefaultOption) => {
+const initRelationsChanged = (relationsFieldsMaps, formData, prevFormData, name, setFormData) => {
     Object.entries(relationsFieldsMaps).forEach(([key, values]) => {
         if (values.includes(name) && formData[key] !== prevFormData[key]) {
             values.forEach((value) => {
@@ -251,7 +251,7 @@ const initRelationsChanged = (relationsFieldsMaps, formData, prevFormData, name,
                     ...prev,
                     [value]: '',
                 }));
-                setDefaultOption('');
+                console.log('changed', name, value);
             })
             return true;
         }
@@ -261,7 +261,7 @@ const initRelationsChanged = (relationsFieldsMaps, formData, prevFormData, name,
 const SelectField = ({ name, options, onChange, defaultValue, fullData, formData, asset, setFormData }) => {
     const [disabled, setDisabled] = useState(false);
     const [relationOptions, setRelationOptions] = useState(null);
-    const [defaultOption, setDefaultOption] = useState(defaultValue);
+    const [defaultText, setDefaultText] = useState('Выберите значение');
     const user = JSON.parse(localStorage.getItem("user"));
     const relationsFieldsMaps = relationsMaps[asset] || relationsMaps.default;
     const prevFormData = useRef(formData);
@@ -296,15 +296,13 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 shouldDisable = true;
                 return;
             } 
+            else {
+                setDefaultText('Выберите значение');
+            }
 
             if (key !== 'Компания' && !relationsFieldsMaps['Компания']?.includes(name)) {
                 fullData['handbooks'][asset]?.forEach((item) => {
-                    if (name === 'Модель') {
-                        if (item['Производитель'] === formData['Производитель'] && item['Тип'] === formData['Тип']) {
-                            optionsFromRelation.push(item[name]);
-                        }
-                    }
-                    else if (item[key] === formData[key]) {
+                    if (item[key] === formData[key]) {
                         optionsFromRelation.push(item[name]);
                     }
                 });
@@ -336,10 +334,11 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
         });
 
         setDisabled(shouldDisable);
-        initRelationsChanged(relationsFieldsMaps, formData, prevFormData.current, name, setFormData, setDefaultOption);
+
+        initRelationsChanged(relationsFieldsMaps, formData, prevFormData.current, name, setFormData)
 
         prevFormData.current = formData;
-    }, [name, formData, fullData, asset, setFormData, relationsFieldsMaps, setDefaultOption]);
+    }, [name, formData, fullData, asset, setFormData, relationsFieldsMaps]);
 
 
     
@@ -352,8 +351,9 @@ const SelectField = ({ name, options, onChange, defaultValue, fullData, formData
                 name={name}
                 options={relationOptions ? relationOptions : options}
                 onChange={onChange}
-                defaultValue={defaultOption}
+                defaultValue={defaultValue}
                 disabled={disabled}
+                defaultText={defaultText}
             />
         </div>
     );
